@@ -6,9 +6,10 @@
 - Supabase and Vercel deployments
 - Wireframes
 - Postgres tables
+- Data import
 
 ## To Do
 
-- Data import
 - Backend
 - Frontend
+- Data cleanup
