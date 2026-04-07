@@ -45,13 +45,13 @@ export default function Home() {
       <header className="flex items-center justify-center border-b-2 border-zinc-900 bg-white px-6 py-3">
         <button
           onClick={handleSignOut}
-          className="group relative text-xl font-bold tracking-tight text-zinc-900 cursor-default hover:cursor-pointer"
+          className="group relative text-xl font-bold tracking-tight text-zinc-900 hover:cursor-pointer"
         >
           <span className="inline-block transition-all duration-300 group-hover:scale-0 group-hover:opacity-0">
             A L L O C A T E
           </span>
-          <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 group-hover:animate-spin group-hover:[animation-duration:0.7s] font-black tracking-widest">
-            B Y E B Y E
+          <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 group-hover:animate-[bounce_0.3s_infinite]">
+            B Y E B Y E ?
           </span>
         </button>
       </header>

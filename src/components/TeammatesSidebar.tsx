@@ -94,7 +94,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
     <>
       {/* Handle — when sidebar is closed */}
       {!open && (
-        <div className="fixed -right-0.5 top-1/2 -translate-y-1/2 z-[51]">
+        <div className="fixed -right-0.5 top-2/3 -translate-y-1/2 z-[51]">
           <button
             onClick={onOpen}
             className="sidebar-tab sidebar-tab-right group bg-emerald-200 text-emerald-700"
@@ -124,7 +124,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
           className={`fixed inset-y-0 right-0 z-50 flex w-[82%] max-w-[1000px] flex-col border-l-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-right" : "slide-in-right"}`}
         >
           {/* Handle — attached to left edge of panel */}
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 -translate-x-full z-[51]">
+          <div className="absolute left-2 top-2/3 -translate-y-1/2 -translate-x-full z-[51]">
             <button
               onClick={handleClose}
               className="sidebar-tab sidebar-tab-right bg-emerald-200 text-emerald-700"

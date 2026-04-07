@@ -104,7 +104,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
     <>
       {/* Handle — when sidebar is closed */}
       {!open && (
-        <div className="fixed -left-0.5 top-1/2 -translate-y-1/2 z-[51]">
+        <div className="fixed -left-0.5 top-1/3 -translate-y-1/2 z-[51]">
           <button
             onClick={onOpen}
             className="sidebar-tab group bg-violet-100 text-violet-700"
@@ -133,7 +133,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
           className={`fixed inset-y-0 left-0 z-50 flex w-[75%] max-w-[1400px] flex-col border-r-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-left" : "slide-in-left"}`}
         >
           {/* Handle — attached to right edge of panel */}
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 translate-x-full z-[51]">
+          <div className="absolute right-2 top-1/3 -translate-y-1/2 translate-x-full z-[51]">
             <button
               onClick={handleClose}
               className="sidebar-tab bg-violet-100 text-violet-700"
@@ -147,7 +147,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
             </button>
           </div>
           {/* Header */}
-          <div className="flex items-start justify-start gap-3 px-6 pt-4 pb-1">
+          <div className="flex items-end justify-end gap-3 px-6 pt-4 pb-1">
             {filtersActive ? (
               <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5">
                 <span className="text-sm font-medium">Filters active</span>
