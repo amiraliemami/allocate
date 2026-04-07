@@ -152,7 +152,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
       {/* Panel + attached handle */}
       {open && (
         <div
-          className={`fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-[1400px] flex-col border-r-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-left" : "slide-in-left"}`}
+          className={`fixed inset-y-0 left-0 z-50 flex w-[75%] max-w-[1400px] flex-col border-r-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-left" : "slide-in-left"}`}
         >
           {/* Handle — attached to right edge of panel */}
           <div className="absolute right-2 top-1/2 -translate-y-1/2 translate-x-full z-[51]">
