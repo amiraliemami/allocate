@@ -3,13 +3,11 @@
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import AllocationCell from "./AllocationCell";
-import { isPastWeek, isCurrentWeek } from "@/lib/dateUtils";
 import { STATUS_COLORS } from "@/lib/statusColors";
 
-const PROJECT_INFO_WIDTH = 160;
-const TEAMMATE_NAME_WIDTH = 100;
-const LEFT_PANEL_WIDTH = PROJECT_INFO_WIDTH + TEAMMATE_NAME_WIDTH;
-const ROW_HEIGHT = 34;
+export const PROJECT_INFO_WIDTH = 200;
+export const TEAMMATE_NAME_WIDTH = 90;
+const ROW_HEIGHT = 30;
 
 export type Allocation = {
   id: string;
@@ -60,75 +58,64 @@ export default function ProjectSection({
   const statusColors = STATUS_COLORS[project.status as keyof typeof STATUS_COLORS];
 
   return (
-    <div className="mt-1 border-t border-zinc-200">
-      {projectTeammates.map((teammate, rowIdx) => (
-        <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
-          {/* Sticky left panel: project info + teammate name */}
-          <div
-            className="sticky left-0 z-10 shrink-0 flex"
-            style={{ width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH }}
-          >
-            {/* Project info — shown on all rows, vertically top-aligned on first */}
-            <div
-              className="flex items-start px-3 pt-1 overflow-hidden border-r-2 border-zinc-400"
-              style={{ width: PROJECT_INFO_WIDTH, backgroundColor: bgColor }}
-            >
-              {rowIdx === 0 && (
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-bold text-sm text-zinc-900 leading-tight">
-                    {project.name}
-                  </span>
-                  <span className="text-[11px] text-zinc-500 leading-tight">
-                    {[project.region, project.billingRate].filter(Boolean).join(", ")}
-                  </span>
-                  {project.lead && (
-                    <span className="text-[11px] font-semibold text-violet-700 leading-tight">
-                      {project.lead.name}
-                    </span>
-                  )}
-                  {statusColors && (
-                    <span className={`self-start text-[9px] font-bold px-1.5 py-0.5 rounded border mt-0.5 ${statusColors.chip}`}>
-                      {project.status}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
+    <div className="mt-4 border-t-2 border-zinc-200 flex">
+      {/* Project info — sticky left, spans full height of this section */}
+      <div
+        className="sticky left-0 z-10 shrink-0 border-x border-b border-zinc-200 px-3 py-2"
+        style={{ width: PROJECT_INFO_WIDTH, minWidth: PROJECT_INFO_WIDTH, minHeight: ROW_HEIGHT * 4, backgroundColor: "white" }}
+      >
+        <div className="flex flex-col gap-0.5">
+          <span className="font-bold text-md text-zinc-900 leading-tight">
+            {project.name}
+          </span>
+          <span className="text-sm text-zinc-500 leading-tight">
+            {[project.region, project.billingRate].filter(Boolean).join(", ")}
+          </span>
+          {project.lead && (
+            <span className="text-sm font-bold text-violet-700 leading-tight">
+              ★ {project.lead.name}
+            </span>
+          )}
+          {statusColors && (
+            <span className={`self-start text-sm font-bold px-2 py-0.5 rounded-md border mt-1 ${statusColors.chip}`}>
+              {project.status}
+            </span>
+          )}
+        </div>
+      </div>
 
-            {/* Teammate name */}
+      {/* Teammate rows + allocation grid */}
+      <div className="flex flex-col flex-1">
+        {projectTeammates.map((teammate) => (
+          <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
+            {/* Teammate name — sticky, positioned right after the project info */}
             <div
-              className="flex items-center px-2 text-sm font-medium text-zinc-700 truncate border-r border-zinc-200"
-              style={{ width: TEAMMATE_NAME_WIDTH, backgroundColor: bgColor }}
+              className="sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium text-zinc-700 truncate border-r border-b border-zinc-200"
+              style={{ left: PROJECT_INFO_WIDTH, width: TEAMMATE_NAME_WIDTH, minWidth: TEAMMATE_NAME_WIDTH, background: "white" }}
             >
               {teammate.name}
             </div>
-          </div>
 
-          {/* Allocation cells with month boundary lines */}
-          <div className="flex" style={{ backgroundColor: bgColor }}>
-            {weekStarts.map((ws) => {
-              const key = `${project.id}|${teammate.id}|${ws}`;
-              const alloc = allocationMap.get(key);
-              const isMonthStart = monthBoundaries.has(ws);
-              return (
-                <div
-                  key={ws}
-                  className={isMonthStart ? "border-l-2 border-zinc-400" : "border-l border-zinc-100"}
-                >
+            {/* Allocation cells */}
+            <div className="flex" style={{ backgroundColor: bgColor }}>
+              {weekStarts.map((ws) => {
+                const key = `${project.id}|${teammate.id}|${ws}`;
+                const alloc = allocationMap.get(key);
+                return (
                   <AllocationCell
+                    key={ws}
                     fraction={alloc?.fraction}
-                    isPast={isPastWeek(ws)}
-                    isCurrent={isCurrentWeek(ws)}
+                    isMonthStart={monthBoundaries.has(ws)}
                     onEdit={(val) =>
                       onCellEdit(project.id, teammate.id, ws, val, alloc?.id)
                     }
                   />
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

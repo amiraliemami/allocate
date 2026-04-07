@@ -45,10 +45,6 @@ export function getCurrentMonday(): string {
   return `${y}-${m}-${d}`;
 }
 
-export function isPastWeek(weekStart: string): boolean {
-  return weekStart < getCurrentMonday();
-}
-
 export function isCurrentWeek(weekStart: string): boolean {
   return weekStart === getCurrentMonday();
 }

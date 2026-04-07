@@ -6,12 +6,11 @@ const CELL_WIDTH = 56;
 
 interface Props {
   fraction: number | undefined;
-  isPast: boolean;
-  isCurrent: boolean;
+  isMonthStart?: boolean;
   onEdit: (value: number | null) => void;
 }
 
-function AllocationCellInner({ fraction, isPast, isCurrent, onEdit }: Props) {
+function AllocationCellInner({ fraction, isMonthStart, onEdit }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
@@ -19,6 +18,10 @@ function AllocationCellInner({ fraction, isPast, isCurrent, onEdit }: Props) {
     fraction != null
       ? (fraction / 100).toFixed(fraction % 10 === 0 ? 1 : 2)
       : "";
+
+  const borderClass = isMonthStart
+    ? "border-l-2 border-l-zinc-300"
+    : "border-l border-l-zinc-200";
 
   const commit = () => {
     setEditing(false);
@@ -37,7 +40,7 @@ function AllocationCellInner({ fraction, isPast, isCurrent, onEdit }: Props) {
     return (
       <div
         style={{ width: CELL_WIDTH, minWidth: CELL_WIDTH }}
-        className="flex items-center justify-center h-full"
+        className={`flex items-center justify-center h-full box-border ${borderClass}`}
       >
         <input
           className="w-full h-full text-center text-sm bg-white outline-none border-2 border-violet-400 rounded px-0.5"
@@ -57,13 +60,7 @@ function AllocationCellInner({ fraction, isPast, isCurrent, onEdit }: Props) {
   return (
     <div
       style={{ width: CELL_WIDTH, minWidth: CELL_WIDTH }}
-      className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full ${
-        isCurrent
-          ? "bg-amber-100/50 font-semibold"
-          : isPast
-            ? "opacity-50"
-            : ""
-      }`}
+      className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full border-b border-b-zinc-200 box-border ${borderClass}`}
       onClick={() => {
         setDraft(displayValue);
         setEditing(true);

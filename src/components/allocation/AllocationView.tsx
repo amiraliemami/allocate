@@ -10,7 +10,7 @@ import ViewToggle from "./ViewToggle";
 import DateHeader from "./DateHeader";
 import ProjectSection from "./ProjectSection";
 
-const LEFT_PANEL_WIDTH = 280;
+const LEFT_PANEL_WIDTH = 260;
 const CELL_WIDTH = 56;
 
 interface Props {
@@ -85,21 +85,18 @@ export default function AllocationView({
   }, [weekStarts]);
 
   return (
-    <div className="flex flex-col h-full mx-40">
+    <div className="flex flex-col h-full max-w-5xl mx-12">
       {/* Toggle */}
-      <div className="py-2 mb-10">
+      <div className="py-2 mb-5">
         <ViewToggle activeView={activeView} onToggle={setActiveView} />
       </div>
 
       {/* Scroll container */}
-      <div ref={scrollRef} className="flex-1 overflow-auto">
-        <div style={{ minWidth: totalWidth }}>
-          {/* Date header */}
-          <DateHeader monthGroups={monthGroups} />
-
-          {/* Project sections */}
-          {activeView === "project" &&
-            activeProjects.map((project, idx) => (
+      <div ref={scrollRef} className="flex-1 overflow-auto pb-15">
+        {activeView === "project" && (
+          <div style={{ minWidth: totalWidth }}>
+            <DateHeader monthGroups={monthGroups} />
+            {activeProjects.map((project, idx) => (
               <ProjectSection
                 key={project.id}
                 project={project}
@@ -111,13 +108,14 @@ export default function AllocationView({
                 onCellEdit={onCellEdit}
               />
             ))}
+          </div>
+        )}
 
-          {activeView === "teammate" && (
-            <div className="flex items-center justify-center py-20 text-zinc-300 text-lg">
-              Teammate view coming soon
-            </div>
-          )}
-        </div>
+        {activeView === "teammate" && (
+          <div className="flex items-center justify-center py-20 text-zinc-600 text-lg font-medium">
+            Teammate view coming soon!
+          </div>
+        )}
       </div>
     </div>
   );
