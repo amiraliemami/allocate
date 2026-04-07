@@ -94,9 +94,3 @@ body {
   outline-offset: -1px;
 }
 
-/* Status badges */
-.status-pipeline { background: #fef3c7; color: #92400e; border-color: #92400e; }
-.status-active { background: #d1fae5; color: #065f46; border-color: #065f46; }
-.status-inactive { background: #fee2e2; color: #991b1b; border-color: #991b1b; }
-.status-archive { background: #e5e7eb; color: #374151; border-color: #374151; }
-.status-completed { background: #dbeafe; color: #1e40af; border-color: #1e40af; }

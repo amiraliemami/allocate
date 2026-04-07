@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       status: body.status ?? "Pipeline",
       conversionProbability: body.conversionProbability ?? null,
       billable: body.billable ?? false,
+      unit4Code: body.unit4Code ?? null,
       leadId: body.leadId ?? null,
     },
     include: { lead: { select: { id: true, name: true } } },

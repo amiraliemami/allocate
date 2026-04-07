@@ -12,4 +12,7 @@
 
 - Backend
 - Frontend
+- Load on the current month
 - Data cleanup
+- U4 project codes
+- Visualisations

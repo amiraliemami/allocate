@@ -4,16 +4,9 @@ import { useRef, useState } from "react";
 import type { Project } from "./ProjectsSidebar";
 import InlineSelect from "./InlineSelect";
 import InlineText from "./InlineText";
+import { STATUS_COLORS, STATUS_ORDER } from "@/lib/statusColors";
 
 type Teammate = { id: string; name: string };
-
-const STATUS_ORDER: Record<string, { label: string; className: string; rowBg: string; rowBgAlt: string }> = {
-  Pipeline: { label: "Pipeline", className: "status-pipeline", rowBg: "bg-amber-100/70", rowBgAlt: "bg-amber-50" },
-  Active: { label: "Active", className: "status-active", rowBg: "bg-emerald-100/70", rowBgAlt: "bg-emerald-50" },
-  Inactive: { label: "Inactive", className: "status-inactive", rowBg: "bg-rose-100/70", rowBgAlt: "bg-rose-50" },
-  Archive: { label: "Archive", className: "status-archive", rowBg: "bg-zinc-100/70", rowBgAlt: "bg-zinc-50" },
-  Completed: { label: "Completed", className: "status-completed", rowBg: "bg-blue-100/70", rowBgAlt: "bg-blue-50" },
-};
 
 const PILLAR_OPTIONS = [
   { value: "", label: "—" },
@@ -40,10 +33,7 @@ const BILLING_RATE_OPTIONS = [
   { value: "Standard", label: "Standard" },
 ];
 
-const STATUS_OPTIONS = Object.entries(STATUS_ORDER).map(([value, { label }]) => ({
-  value,
-  label,
-}));
+const STATUS_OPTIONS = STATUS_ORDER.map((s) => ({ value: s, label: s }));
 
 const CONV_PROB_OPTIONS = [
   { value: "", label: "—" },
@@ -68,7 +58,6 @@ interface Props {
   projects: Project[];
   teammates: Teammate[];
   onUpdate: (id: string, field: string, value: unknown) => void;
-  onCreate: () => void;
   onDelete: (id: string) => void;
 }
 
@@ -76,12 +65,11 @@ export default function ProjectsTable({
   projects,
   teammates,
   onUpdate,
-  onCreate,
   onDelete,
 }: Props) {
   const newRowRef = useRef<HTMLInputElement>(null);
 
-  const grouped = Object.keys(STATUS_ORDER).reduce(
+  const grouped = STATUS_ORDER.reduce(
     (acc, status) => {
       acc[status] = projects.filter((p) => p.status === status);
       return acc;
@@ -94,65 +82,52 @@ export default function ProjectsTable({
     ...teammates.map((t) => ({ value: t.id, label: t.name })),
   ];
 
-  const handleCreate = () => {
-    onCreate();
-    setTimeout(() => newRowRef.current?.focus(), 100);
-  };
-
   return (
     <div className="space-y-6">
-      {/* Add new row */}
-      <div className="flex justify-center">
-        <button
-          onClick={handleCreate}
-          className="btn-chunky flex items-center gap-2 rounded-lg bg-violet-100 px-4 py-2 text-sm font-bold text-violet-800"
-        >
-          <span className="text-lg leading-none">+</span> New
-        </button>
-      </div>
 
       {/* Fixed-width table — sidebar handles scrolling */}
-      <div className="min-w-[900px]">
+      <div className="min-w-[990px]">
 
-      {/* Table header */}
-      <div className="sticky top-0 z-20 grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_120px_40px] gap-px rounded-t-lg border-2 border-zinc-900 bg-zinc-900 text-xs font-bold text-white overflow-hidden">
-        <div className="bg-zinc-800 px-3 py-2">Name</div>
-        <div className="bg-zinc-800 px-3 py-2">Pillar</div>
-        <div className="bg-zinc-800 px-3 py-2">Region</div>
-        <div className="bg-zinc-800 px-3 py-2">Rate</div>
-        <div className="bg-zinc-800 px-3 py-2">Status</div>
-        <div className="bg-zinc-800 px-3 py-2">Conv%</div>
-        <div className="bg-zinc-800 px-3 py-2">Bill</div>
-        <div className="bg-zinc-800 px-3 py-2">Lead</div>
-        <div className="bg-zinc-800 px-3 py-2"></div>
+      {/* Table header — before pseudo-element covers content scrolling above */}
+      <div className="sticky top-0 z-20 grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_90px_120px_40px] border-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
+        <div className="px-2 py-2">Name</div>
+        <div className="px-2 py-2">Pillar</div>
+        <div className="px-2 py-2">Region</div>
+        <div className="px-2 py-2">Rate</div>
+        <div className="px-2 py-2">Status</div>
+        <div className="px-2 py-2">Prob%</div>
+        <div className="px-2 py-2">Bill</div>
+        <div className="px-2 py-2">U4 Code</div>
+        <div className="px-2 py-2">Lead</div>
+        <div className="px-2 py-2"></div>
       </div>
 
       {/* Grouped rows */}
       {Object.entries(grouped).map(([status, items]) => {
         if (items.length === 0) return null;
-        const statusInfo = STATUS_ORDER[status];
+        const colors = STATUS_COLORS[status as keyof typeof STATUS_COLORS];
 
         return (
           <div key={status} className="relative">
             {/* Group label — floating chip */}
             <div className="sticky top-[37px] z-10 pointer-events-none py-1.5">
               <span
-                className={`inline-block rounded-md border-2 px-2.5 py-0.5 text-xs font-bold shadow-sm ${statusInfo.className}`}
+                className={`inline-block rounded-md border-2 ml-1 px-2.5 py-0.5 text-xs font-bold shadow-sm ${colors.chip}`}
               >
-                {statusInfo.label}
+                {status}
               </span>
               <span className="text-xs text-zinc-400 ml-1.5">{items.length}</span>
             </div>
 
             {/* Rows */}
-            <div className="rounded-lg border-2 border-zinc-200 overflow-hidden">
+            <div className={`rounded-lg border-2 ${colors.border} overflow-hidden`}>
               {items.map((project, idx) => (
                 <ProjectRow
                   key={project.id}
                   project={project}
                   idx={idx}
-                  rowBg={statusInfo.rowBg}
-                  rowBgAlt={statusInfo.rowBgAlt}
+                  rowBg={colors.rowBg}
+                  rowBgAlt={colors.rowBgAlt}
                   newRowRef={newRowRef}
                   leadOptions={leadOptions}
                   onUpdate={onUpdate}
@@ -192,7 +167,7 @@ function ProjectRow({
 
   return (
     <div
-      className={`grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_120px_40px] gap-px transition-colors ${
+      className={`grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_90px_120px_40px] gap-px transition-colors ${
         confirming
           ? "bg-rose-50"
           : isDraft
@@ -277,6 +252,11 @@ function ProjectRow({
             options={BILLABLE_OPTIONS}
             onSave={(v) => onUpdate(project.id, "billable", v === "true")}
             disabled={isDraft}
+          />
+          <InlineText
+            value={project.unit4Code ?? ""}
+            placeholder="—"
+            onSave={(v) => onUpdate(project.id, "unit4Code", v || null)}
           />
           <InlineSelect
             value={project.leadId ?? ""}

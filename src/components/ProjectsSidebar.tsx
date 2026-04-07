@@ -14,6 +14,7 @@ export type Project = {
   status: string;
   conversionProbability: number | null;
   billable: boolean;
+  unit4Code: string | null;
   leadId: string | null;
   lead: Teammate | null;
 };
@@ -103,6 +104,7 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
       status: "Pipeline",
       conversionProbability: null,
       billable: false,
+      unit4Code: null,
       leadId: null,
       lead: null,
     };
@@ -132,21 +134,28 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
         className={`fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-[1400px] flex-col border-r-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-left" : "slide-in-left"}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b-2 border-zinc-900 px-6 py-4">
-          <div className="flex items-center gap-3">
+        <div className="grid grid-cols-3 items-center border-b-2 border-zinc-900 px-6 py-4">
+          <div className="flex items-center">
             <div className="flex h-9 w-24 items-center justify-center rounded-lg bg-violet-200 text-md font-bold text-violet-800 border-2 border-zinc-900">
               Projects
             </div>
-            <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-semibold text-zinc-500 border border-zinc-300">
-              {projects.length}
-            </span>
           </div>
-          <button
-            onClick={handleClose}
-            className="btn-chunky flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-700 text-lg font-bold"
-          >
-            &times;
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={handleCreate}
+              className="btn-chunky flex h-9 items-center gap-1.5 rounded-lg bg-violet-100 px-3 text-sm font-bold text-violet-800"
+            >
+              <span className="text-lg leading-none">+</span> New
+            </button>
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={handleClose}
+              className="btn-chunky flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-700 text-lg font-bold"
+            >
+              &times;
+            </button>
+          </div>
         </div>
 
         {/* Content */}

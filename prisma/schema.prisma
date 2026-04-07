@@ -89,6 +89,7 @@ model Project {
   status                ProjectStatus  @default(Pipeline)
   conversionProbability Int?
   billable              Boolean        @default(false)
+  unit4Code             String?
 
   leadId String?
   lead   Teammate? @relation(fields: [leadId], references: [id], onDelete: SetNull)
