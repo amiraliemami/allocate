@@ -26,14 +26,14 @@ export default function Home() {
       <ProjectsSidebar
         open={projectsOpen}
         onClose={() => setProjectsOpen(false)}
-        onOpen={() => setProjectsOpen(true)}
+        onOpen={() => { setTeammatesOpen(false); setProjectsOpen(true); }}
       />
 
       {/* Teammates sidebar + handle (right) */}
       <TeammatesSidebar
         open={teammatesOpen}
         onClose={() => setTeammatesOpen(false)}
-        onOpen={() => setTeammatesOpen(true)}
+        onOpen={() => { setProjectsOpen(false); setTeammatesOpen(true); }}
       />
     </div>
   );
