@@ -71,7 +71,7 @@ export default function LoginPage() {
           data-lpignore="true"
           className={`absolute inset-0 w-full text-center text-2xl font-bold tracking-widest bg-transparent outline-none transition-all duration-300 ${
             hovering ? "opacity-100 scale-100" : "opacity-0 scale-110 pointer-events-none"
-          }`}
+          } ${error ? "text-rose-800 animate-bounce [animation-duration:0.3s]" : "text-zinc-900"}`}
           placeholder=""
         />
       </div>
