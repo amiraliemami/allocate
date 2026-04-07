@@ -1,12 +1,61 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import type { Project } from "./ProjectsSidebar";
 import InlineSelect from "./InlineSelect";
 import InlineText from "./InlineText";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/statusColors";
+import ColumnFilterPopover from "./ColumnFilterPopover";
+import TextFilter from "./filters/TextFilter";
+import MultiSelectFilter from "./filters/MultiSelectFilter";
+import ToggleFilter from "./filters/ToggleFilter";
 
 type Teammate = { id: string; name: string };
+
+type ProjectFilters = {
+  name: string;
+  pillar: Set<string>;
+  region: Set<string>;
+  billingRate: Set<string>;
+  status: Set<string>;
+  conversionProbability: Set<string>;
+  billable: "all" | "yes" | "no";
+  unit4Code: string;
+  leadId: Set<string>;
+};
+
+const EMPTY_FILTERS: ProjectFilters = {
+  name: "",
+  pillar: new Set(),
+  region: new Set(),
+  billingRate: new Set(),
+  status: new Set(),
+  conversionProbability: new Set(),
+  billable: "all",
+  unit4Code: "",
+  leadId: new Set(),
+};
+
+function isFilterActive(filters: ProjectFilters): boolean {
+  return (
+    filters.name !== "" ||
+    filters.pillar.size > 0 ||
+    filters.region.size > 0 ||
+    filters.billingRate.size > 0 ||
+    filters.status.size > 0 ||
+    filters.conversionProbability.size > 0 ||
+    filters.billable !== "all" ||
+    filters.unit4Code !== "" ||
+    filters.leadId.size > 0
+  );
+}
+
+function isFieldActive(filters: ProjectFilters, field: keyof ProjectFilters): boolean {
+  const v = filters[field];
+  if (v instanceof Set) return v.size > 0;
+  if (field === "billable") return v !== "all";
+  return v !== "";
+}
 
 const PILLAR_OPTIONS = [
   { value: "", label: "—" },
@@ -59,6 +108,7 @@ interface Props {
   teammates: Teammate[];
   onUpdate: (id: string, field: string, value: unknown) => void;
   onDelete: (id: string) => void;
+  onFilterChange?: (active: boolean, clearFn: () => void) => void;
 }
 
 export default function ProjectsTable({
@@ -66,12 +116,48 @@ export default function ProjectsTable({
   teammates,
   onUpdate,
   onDelete,
+  onFilterChange,
 }: Props) {
   const newRowRef = useRef<HTMLInputElement>(null);
+  const [filters, setFilters] = useState<ProjectFilters>({ ...EMPTY_FILTERS });
+  const [openFilter, setOpenFilter] = useState<string | null>(null);
+
+  const updateFilter = useCallback(
+    <K extends keyof ProjectFilters>(key: K, value: ProjectFilters[K]) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
+
+  const clearAllFilters = useCallback(() => setFilters({ ...EMPTY_FILTERS }), []);
+  const filtersActive = isFilterActive(filters);
+
+  useEffect(() => {
+    onFilterChange?.(filtersActive, clearAllFilters);
+  }, [filtersActive, clearAllFilters, onFilterChange]);
+
+  const applyFilters = (list: Project[]): Project[] => {
+    return list.filter((p) => {
+      if (filters.name && !p.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
+      if (filters.pillar.size > 0 && !filters.pillar.has(p.pillar ?? "")) return false;
+      if (filters.region.size > 0 && !filters.region.has(p.region ?? "")) return false;
+      if (filters.billingRate.size > 0 && !filters.billingRate.has(p.billingRate ?? "")) return false;
+      if (filters.conversionProbability.size > 0 && !filters.conversionProbability.has(String(p.conversionProbability ?? ""))) return false;
+      if (filters.billable === "yes" && !p.billable) return false;
+      if (filters.billable === "no" && p.billable) return false;
+      if (filters.unit4Code && !(p.unit4Code ?? "").toLowerCase().includes(filters.unit4Code.toLowerCase())) return false;
+      if (filters.leadId.size > 0 && !filters.leadId.has(p.leadId ?? "")) return false;
+      return true;
+    });
+  };
 
   const grouped = STATUS_ORDER.reduce(
     (acc, status) => {
-      acc[status] = projects.filter((p) => p.status === status);
+      if (filters.status.size > 0 && !filters.status.has(status)) {
+        acc[status] = [];
+      } else {
+        acc[status] = applyFilters(projects.filter((p) => p.status === status));
+      }
       return acc;
     },
     {} as Record<string, Project[]>
@@ -82,6 +168,56 @@ export default function ProjectsTable({
     ...teammates.map((t) => ({ value: t.id, label: t.name })),
   ];
 
+  const leadFilterOptions = teammates.map((t) => ({ value: t.id, label: t.name }));
+
+  const toggleFilter = (field: string) => {
+    setOpenFilter(openFilter === field ? null : field);
+  };
+
+  type HeaderCol = {
+    field: keyof ProjectFilters;
+    label: string;
+    align?: "left" | "right";
+  };
+
+  const columns: (HeaderCol | null)[] = [
+    { field: "name", label: "Name" },
+    { field: "pillar", label: "Pillar" },
+    { field: "region", label: "Region" },
+    { field: "billingRate", label: "Rate" },
+    { field: "status", label: "Status" },
+    { field: "conversionProbability", label: "Prob%" },
+    { field: "billable", label: "Bill" },
+    { field: "unit4Code", label: "U4 Code" },
+    { field: "leadId", label: "Lead", align: "right" },
+    null, // delete column
+  ];
+
+  const renderFilterContent = (field: keyof ProjectFilters) => {
+    switch (field) {
+      case "name":
+        return <TextFilter value={filters.name} onChange={(v) => updateFilter("name", v)} placeholder="Search name..." />;
+      case "unit4Code":
+        return <TextFilter value={filters.unit4Code} onChange={(v) => updateFilter("unit4Code", v)} placeholder="Search code..." />;
+      case "pillar":
+        return <MultiSelectFilter options={PILLAR_OPTIONS.filter((o) => o.value)} selected={filters.pillar} onChange={(v) => updateFilter("pillar", v)} />;
+      case "region":
+        return <MultiSelectFilter options={REGION_OPTIONS.filter((o) => o.value)} selected={filters.region} onChange={(v) => updateFilter("region", v)} />;
+      case "billingRate":
+        return <MultiSelectFilter options={BILLING_RATE_OPTIONS.filter((o) => o.value)} selected={filters.billingRate} onChange={(v) => updateFilter("billingRate", v)} />;
+      case "status":
+        return <MultiSelectFilter options={STATUS_OPTIONS} selected={filters.status} onChange={(v) => updateFilter("status", v)} />;
+      case "conversionProbability":
+        return <MultiSelectFilter options={CONV_PROB_OPTIONS.filter((o) => o.value)} selected={filters.conversionProbability} onChange={(v) => updateFilter("conversionProbability", v)} />;
+      case "billable":
+        return <ToggleFilter value={filters.billable} onChange={(v) => updateFilter("billable", v)} />;
+      case "leadId":
+        return <MultiSelectFilter options={leadFilterOptions} selected={filters.leadId} onChange={(v) => updateFilter("leadId", v)} searchable />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6">
 
@@ -90,16 +226,30 @@ export default function ProjectsTable({
 
       {/* Table header — before pseudo-element covers content scrolling above */}
       <div className="sticky top-0 z-20 grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_90px_120px_40px] border-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
-        <div className="px-2 py-2">Name</div>
-        <div className="px-2 py-2">Pillar</div>
-        <div className="px-2 py-2">Region</div>
-        <div className="px-2 py-2">Rate</div>
-        <div className="px-2 py-2">Status</div>
-        <div className="px-2 py-2">Prob%</div>
-        <div className="px-2 py-2">Bill</div>
-        <div className="px-2 py-2">U4 Code</div>
-        <div className="px-2 py-2">Lead</div>
-        <div className="px-2 py-2"></div>
+        {columns.map((col, i) =>
+          col ? (
+            <div
+              key={col.field}
+              className="relative px-2 py-2 text-left flex items-center gap-1 hover:bg-violet-50 transition-colors cursor-pointer select-none"
+              onClick={() => toggleFilter(col.field)}
+            >
+              {col.label}
+              {isFieldActive(filters, col.field) && (
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-600 shrink-0" />
+              )}
+              {openFilter === col.field && (
+                <ColumnFilterPopover
+                  onClose={() => setOpenFilter(null)}
+                  align={col.align ?? (i >= columns.length - 3 ? "right" : "left")}
+                >
+                  {renderFilterContent(col.field)}
+                </ColumnFilterPopover>
+              )}
+            </div>
+          ) : (
+            <div key="delete" className="px-2 py-2" />
+          )
+        )}
       </div>
 
       {/* Grouped rows */}

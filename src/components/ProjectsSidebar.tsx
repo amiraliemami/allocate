@@ -29,6 +29,8 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
   const [teammates, setTeammates] = useState<Teammate[]>([]);
   const [loading, setLoading] = useState(true);
   const [closing, setClosing] = useState(false);
+  const [filtersActive, setFiltersActive] = useState(false);
+  const [clearFilters, setClearFilters] = useState<(() => void) | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -140,7 +142,18 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
               Projects
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="flex items-center justify-center gap-3">
+            {filtersActive && (
+              <div className="flex items-center gap-2 rounded-lg border-2 border-violet-300 bg-violet-50 px-3 pt-1 pb-2">
+                <span className="text-sm font-medium text-violet-700">Filters active</span>
+                <button
+                  onClick={() => clearFilters?.()}
+                  className="btn-chunky rounded-md bg-white px-2 py-0.5 text-xs font-bold text-violet-700"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
             <button
               onClick={handleCreate}
               className="btn-chunky flex h-9 items-center gap-1.5 rounded-lg bg-violet-100 px-3 text-sm font-bold text-violet-800"
@@ -169,8 +182,11 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
               projects={projects}
               teammates={teammates}
               onUpdate={handleUpdate}
-              onCreate={handleCreate}
               onDelete={handleDelete}
+              onFilterChange={(active, clearFn) => {
+                setFiltersActive(active);
+                setClearFilters(() => clearFn);
+              }}
             />
           )}
         </div>
