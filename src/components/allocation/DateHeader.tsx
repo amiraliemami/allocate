@@ -8,7 +8,6 @@ import type { AllocationFilters } from "./AllocationView";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import { STATUS_ORDER } from "@/lib/statusColors";
-import { TEAMMATE_STATUS_ORDER } from "@/lib/teammateStatusColors";
 import ColumnFilterPopover from "@/components/ColumnFilterPopover";
 import MultiSelectFilter from "@/components/filters/MultiSelectFilter";
 
@@ -77,30 +76,26 @@ export default function DateHeader({
         .sort((a, b) => a.label.localeCompare(b.label)),
       searchable: true,
     },
-    {
-      key: "teammateStatus",
-      label: "Show Alumni",
-      options: TEAMMATE_STATUS_ORDER.map((s) => ({ value: s, label: s })),
-    },
   ];
 
   function getChipLabel(def: FilterDef): string | null {
     const selected = filters[def.key];
     if (selected.size === 0) return null;
-    const labels = def.options
-      .filter((o) => selected.has(o.value))
-      .map((o) => o.label);
-    return labels.join(", ");
+    if (selected.size === 1) {
+      const match = def.options.find((o) => selected.has(o.value));
+      return match?.label ?? "1";
+    }
+    return `${selected.size}`;
   }
 
   return (
-    <div className="sticky top-0 z-20 flex bg-white">
+    <div className="sticky top-0 z-20 flex items-end bg-white">
       {/* Corner — filter chips */}
       <div
-        className="sticky left-0 z-30 bg-white shrink-0 border-r-2 border-zinc-400 px-2 pb-2"
+        className="sticky left-0 z-30 bg-white shrink-0 border-b-2 border-r-2  px-2 pb-2"
         style={{ width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH }}
       >
-        <div className="text-sm font-medium text-zinc-500 mb-1">Filters:</div>
+        <div className="text-sm font-bold mb-1">filters are here filters are here filters</div>
         <div className="flex flex-wrap gap-1.5">
           {filterDefs.map((def) => {
             const activeLabel = getChipLabel(def);
@@ -117,7 +112,7 @@ export default function DateHeader({
                 >
                   {activeLabel ? (
                     <>
-                      <span className="max-w-[100px] truncate">{def.label}: {activeLabel}</span>
+                      <span className="max-w-[120px] truncate">{def.label}: {activeLabel}</span>
                       <button
                         className="hover:text-red-900 ml-1"
                         onClick={(e) => {
@@ -148,6 +143,28 @@ export default function DateHeader({
               </div>
             );
           })}
+
+          {/* Show Alumni toggle */}
+          <div
+            className={`flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md cursor-pointer select-none transition-colors border-2 border-zinc-900 ${
+              filters.teammateStatus.size === 0
+                ? "bg-purple-100"
+                : "bg-white hover:bg-purple-100"
+            }`}
+            style={{ boxShadow: "1px 2px 0 #1a1a1a" }}
+            onClick={() => {
+              if (filters.teammateStatus.size === 0) {
+                onFilterChange("teammateStatus", new Set(["Active"]));
+              } else {
+                onFilterChange("teammateStatus", new Set());
+              }
+            }}
+          >
+            Alumni
+            {filters.teammateStatus.size === 0 && (
+              <span className="text-zinc-400 hover:text-red-900 ml-0.5">×</span>
+            )}
+          </div>
         </div>
       </div>
 

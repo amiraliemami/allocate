@@ -65,6 +65,11 @@ body {
   animation: slideOutRight 0.3s cubic-bezier(0.5, 0, 0.75, 0) forwards;
 }
 
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 @keyframes wiggle {
   0%, 100% { transform: rotate(-3deg) scale(1.1); }
   25% { transform: rotate(3deg) scale(1.15); }

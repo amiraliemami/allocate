@@ -20,10 +20,10 @@ export type AllocationFilters = {
   teammateId: Set<string>;
 };
 
-const EMPTY_FILTERS: AllocationFilters = {
-  projectStatus: new Set(),
+const DEFAULT_FILTERS: AllocationFilters = {
+  projectStatus: new Set(["Active"]),
   projectLeadId: new Set(),
-  teammateStatus: new Set(),
+  teammateStatus: new Set(["Active"]), // hide alumni by default
   teammateId: new Set(),
 };
 
@@ -49,14 +49,26 @@ export default function AllocationView({
   onCellEdit,
 }: Props) {
   const [activeView, setActiveView] = useState<"project" | "teammate">("project");
-  const [filters, setFilters] = useState<AllocationFilters>({ ...EMPTY_FILTERS });
+  const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const updateFilter = useCallback(
     <K extends keyof AllocationFilters>(key: K, value: AllocationFilters[K]) => {
-      setFilters((prev) => ({ ...prev, [key]: value }));
+      setFilters((prev) => {
+        const next = { ...prev, [key]: value };
+        // If teammate filter has any alumni selected, auto-show alumni
+        if (key === "teammateId" && value instanceof Set && value.size > 0) {
+          const hasAlumni = teammates.some(
+            (t) => (value as Set<string>).has(t.id) && t.status === "Alumni"
+          );
+          if (hasAlumni) {
+            next.teammateStatus = new Set();
+          }
+        }
+        return next;
+      });
     },
-    []
+    [teammates]
   );
 
   const allocationMap = useMemo(() => {
