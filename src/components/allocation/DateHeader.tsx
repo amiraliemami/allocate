@@ -93,7 +93,7 @@ export default function DateHeader({
   }
 
   return (
-    <div className="sticky top-0 z-20 flex items-end bg-white">
+    <div className="sticky top-0 z-20 flex items-stretch bg-white">
       {/* Corner — filter chips */}
       <div
         className="sticky left-0 z-30 bg-white shrink-0 border-b-2 border-r-2  px-2 pb-2"
@@ -189,7 +189,14 @@ export default function DateHeader({
       </div>
 
       {/* Month groupings + week labels */}
-      <div className="flex">
+      <div className="flex flex-col justify-end">
+        <div
+          className="text-sm font-bold overflow-hidden whitespace-nowrap border-b border-zinc-200 px-2 pb-2"
+          style={{ width: monthGroups.reduce((sum, m) => sum + m.weeks.length * CELL_WIDTH, 0) }}
+        >
+          {Array(Math.ceil(monthGroups.reduce((sum, m) => sum + m.weeks.length, 0) * 1.33)).fill("dates").join(" ")}
+        </div>
+        <div className="flex">
         {monthGroups.map((month) => (
           <div key={month.label}>
             <div
@@ -217,6 +224,7 @@ export default function DateHeader({
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import type { Teammate } from "@/components/TeammatesSidebar";
 import type { Allocation } from "./ProjectSection";
 import { groupWeeksByMonth, getCurrentMonday } from "@/lib/dateUtils";
 import { getProjectBg } from "@/lib/projectColors";
-import ViewToggle from "./ViewToggle";
 import DateHeader from "./DateHeader";
 import ProjectSection from "./ProjectSection";
 
@@ -32,6 +31,7 @@ interface Props {
   teammates: Teammate[];
   allocations: Allocation[];
   weekStarts: string[];
+  activeView: "project" | "teammate";
   onCellEdit: (
     projectId: string,
     teammateId: string,
@@ -46,9 +46,9 @@ export default function AllocationView({
   teammates,
   allocations,
   weekStarts,
+  activeView,
   onCellEdit,
 }: Props) {
-  const [activeView, setActiveView] = useState<"project" | "teammate">("project");
   const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -125,14 +125,9 @@ export default function AllocationView({
   }, [weekStarts]);
 
   return (
-    <div className="flex flex-col h-full max-w-5xl mx-12">
-      {/* Toggle */}
-      <div className="py-2 mb-5">
-        <ViewToggle activeView={activeView} onToggle={setActiveView} />
-      </div>
-
+    <div className="flex flex-col h-full w-full max-w-6xl mx-auto px-12">
       {/* Scroll container */}
-      <div ref={scrollRef} className="flex-1 overflow-auto pb-15">
+      <div ref={scrollRef} className="flex-1 overflow-auto pb-15 border-t-4 border-2 border-zinc-900">
         {activeView === "project" && (
           <div style={{ minWidth: totalWidth }}>
             <DateHeader
