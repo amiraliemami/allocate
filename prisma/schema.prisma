@@ -40,12 +40,15 @@ enum Pillar {
   Products
   Services
   Advisory
+  Internal
 }
 
 enum BillingRate {
   Internal
   L1
   Fractional
+  CoImpact
+  Standard
 }
 
 enum ProjectStatus {
@@ -59,13 +62,13 @@ enum ProjectStatus {
 // ─── Models ───────────────────────────────────────────────
 
 model Teammate {
-  id     String         @id @default(cuid())
+  id     String          @id @default(cuid())
   name   String
-  email  String         @unique
-  role   Role
-  level  Level
-  region Region
-  status TeammateStatus @default(Active)
+  email  String?         @unique
+  role   Role?
+  level  Level?
+  region Region?
+  status TeammateStatus  @default(Active)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -78,14 +81,14 @@ model Teammate {
 }
 
 model Project {
-  id                    String        @id @default(cuid())
+  id                    String         @id @default(cuid())
   name                  String
-  pillar                Pillar
-  region                Region
-  billingRate           BillingRate
-  status                ProjectStatus @default(Pipeline)
+  pillar                Pillar?
+  region                Region?
+  billingRate           BillingRate?
+  status                ProjectStatus  @default(Pipeline)
   conversionProbability Int?
-  billable              Boolean       @default(false)
+  billable              Boolean        @default(false)
 
   leadId String?
   lead   Teammate? @relation(fields: [leadId], references: [id], onDelete: SetNull)
