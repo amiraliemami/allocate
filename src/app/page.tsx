@@ -13,9 +13,9 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setProjectsOpen(true)}
-            className="btn-chunky flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-lg font-bold text-violet-700"
+            className="btn-chunky flex px-2 py-0.5 items-center justify-center rounded-xl bg-violet-100 text-lg font-bold text-violet-700"
           >
-            P
+            &gt; Projects
           </button>
           <h1 className="text-xl font-bold tracking-tight text-zinc-900">
             Allocate
@@ -23,8 +23,8 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="btn-chunky flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
-            T
+          <button className="btn-chunky flex px-2 py-0.5 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
+            Team &lt;
           </button>
         </div>
       </header>

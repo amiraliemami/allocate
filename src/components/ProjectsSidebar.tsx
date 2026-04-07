@@ -166,7 +166,7 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
               onClick={handleClose}
               className="btn-chunky flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-700 text-lg font-bold"
             >
-              &times;
+              &lt;
             </button>
           </div>
         </div>
