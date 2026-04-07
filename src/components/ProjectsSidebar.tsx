@@ -22,9 +22,10 @@ export type Project = {
 interface Props {
   open: boolean;
   onClose: () => void;
+  onOpen: () => void;
 }
 
-export default function ProjectsSidebar({ open, onClose }: Props) {
+export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [teammates, setTeammates] = useState<Teammate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,30 +122,56 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
     }
   };
 
-  if (!open) return null;
-
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 z-40 bg-black/20 ${closing ? "fade-out" : "fade-in"}`}
-        onClick={handleClose}
-      />
-
-      {/* Panel */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-[1400px] flex-col border-r-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-left" : "slide-in-left"}`}
-      >
-        {/* Header */}
-        <div className="grid grid-cols-3 items-center border-b-2 border-zinc-900 px-6 py-4">
-          <div className="flex items-center">
-            <div className="flex h-9 w-24 items-center justify-center rounded-lg bg-violet-200 text-md font-bold text-violet-800 border-2 border-zinc-900">
+      {/* Handle — when sidebar is closed */}
+      {!open && (
+        <div className="fixed -left-0.5 top-1/2 -translate-y-1/2 z-[51]">
+          <button
+            onClick={onOpen}
+            className="sidebar-tab sidebar-tab group bg-violet-200 text-violet-700"
+          >
+            <span className="px-2.5 transition-all w-0 overflow-hidden whitespace-nowrap group-hover:w-20 group-hover:px-2">
               Projects
-            </div>
+            </span>
+            <span className="px-1.5">
+              {"\u203A"}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Backdrop */}
+      {open && (
+        <div
+          className={`fixed inset-0 z-40 bg-black/20 ${closing ? "fade-out" : "fade-in"}`}
+          onClick={handleClose}
+        />
+      )}
+
+      {/* Panel + attached handle */}
+      {open && (
+        <div
+          className={`fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-[1400px] flex-col border-r-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-left" : "slide-in-left"}`}
+        >
+          {/* Handle — attached to right edge of panel */}
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 translate-x-full z-[51]">
+            <button
+              onClick={handleClose}
+              className="sidebar-tab sidebar-tab bg-violet-200 text-violet-700"
+            >
+              <span className="px-2.5 whitespace-nowrap">
+                Projects
+              </span>
+              <span className="px-1.5">
+                {"\u2039"}
+              </span>
+            </button>
           </div>
-          <div className="flex items-center justify-center gap-3">
-            {filtersActive && (
-              <div className="flex items-center gap-2 rounded-lg border-2 border-violet-300 bg-violet-50 px-3 pt-1 pb-2">
+          {/* Header */}
+          <div className="flex items-start justify-start gap-3 px-6 pt-4 pb-1">
+            {filtersActive ? (
+              <div className="flex items-center gap-2 rounded-lg border-2 border-violet-300 bg-violet-50 px-3 py-1.5">
                 <span className="text-sm font-medium text-violet-700">Filters active</span>
                 <button
                   onClick={() => clearFilters?.()}
@@ -153,44 +180,37 @@ export default function ProjectsSidebar({ open, onClose }: Props) {
                   Clear all
                 </button>
               </div>
+            ) : (
+              <button
+                onClick={handleCreate}
+                className="btn-chunky flex h-9 items-center gap-1.5 rounded-lg bg-violet-100 px-3 text-sm font-bold text-violet-800"
+              >
+                <span className="text-lg leading-none">+</span> New
+              </button>
             )}
-            <button
-              onClick={handleCreate}
-              className="btn-chunky flex h-9 items-center gap-1.5 rounded-lg bg-violet-100 px-3 text-sm font-bold text-violet-800"
-            >
-              <span className="text-lg leading-none">+</span> New
-            </button>
           </div>
-          <div className="flex justify-end">
-            <button
-              onClick={handleClose}
-              className="btn-chunky flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-700 text-lg font-bold"
-            >
-              &lt;
-            </button>
-          </div>
-        </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-auto px-6 py-4">
-          {loading ? (
-            <div className="flex h-full items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-3 border-violet-200 border-t-violet-600" />
-            </div>
-          ) : (
-            <ProjectsTable
-              projects={projects}
-              teammates={teammates}
-              onUpdate={handleUpdate}
-              onDelete={handleDelete}
-              onFilterChange={(active, clearFn) => {
-                setFiltersActive(active);
-                setClearFilters(() => clearFn);
-              }}
-            />
-          )}
+          {/* Content */}
+          <div className="flex-1 overflow-auto mx-5 my-3 border-2 border-zinc-900">
+            {loading ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-3 border-violet-200 border-t-violet-600" />
+              </div>
+            ) : (
+              <ProjectsTable
+                projects={projects}
+                teammates={teammates}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}
+                onFilterChange={(active, clearFn) => {
+                  setFiltersActive(active);
+                  setClearFilters(() => clearFn);
+                }}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

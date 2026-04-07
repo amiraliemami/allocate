@@ -225,7 +225,7 @@ export default function ProjectsTable({
       <div className="min-w-[990px]">
 
       {/* Table header — before pseudo-element covers content scrolling above */}
-      <div className="sticky top-0 z-20 grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_90px_120px_40px] border-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
+      <div className="sticky top-0 z-20 grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_90px_120px_40px] border-y-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
         {columns.map((col, i) =>
           col ? (
             <div
@@ -270,7 +270,7 @@ export default function ProjectsTable({
             </div>
 
             {/* Rows */}
-            <div className={`rounded-lg border-2 ${colors.border} overflow-hidden`}>
+            <div className={`overflow-hidden`}>
               {items.map((project, idx) => (
                 <ProjectRow
                   key={project.id}

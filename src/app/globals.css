@@ -70,6 +70,29 @@ body {
   animation: popIn 0.15s ease-out forwards;
 }
 
+/* Sidebar tab handle */
+.sidebar-tab {
+  display: flex;
+  align-items: center;
+  border: 2px solid #1a1a1a;
+  border-radius: 0 0.75rem 0.75rem 0;
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #1a1a1a;
+  transition: all 0.1s ease;
+}
+
+.sidebar-tab:active {
+  box-shadow: 0 2px 0 #1a1a1a;
+  transform: translateY(1px);
+}
+
+.sidebar-tab-right {
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
 /* Chunky shadow style for buttons */
 .btn-chunky {
   border: 2px solid #1a1a1a;
