@@ -38,7 +38,11 @@ export function getCurrentMonday(): string {
   const day = now.getDay();
   const diff = now.getDate() - day + (day === 0 ? -6 : 1);
   const monday = new Date(now.getFullYear(), now.getMonth(), diff);
-  return monday.toISOString().split("T")[0];
+  // Use local date parts to avoid UTC timezone shift
+  const y = monday.getFullYear();
+  const m = String(monday.getMonth() + 1).padStart(2, "0");
+  const d = String(monday.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 export function isPastWeek(weekStart: string): boolean {

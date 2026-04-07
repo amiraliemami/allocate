@@ -49,6 +49,15 @@ export default function AllocationView({
 
   const monthGroups = useMemo(() => groupWeeksByMonth(weekStarts), [weekStarts]);
 
+  // Set of weekStart strings that are the first week of a month (for vertical month lines)
+  const monthBoundaries = useMemo(() => {
+    const set = new Set<string>();
+    for (const mg of monthGroups) {
+      if (mg.weeks.length > 0) set.add(mg.weeks[0]);
+    }
+    return set;
+  }, [monthGroups]);
+
   // Filter to only active/pipeline projects that have allocations
   const activeProjects = useMemo(() => {
     const projectsWithAllocations = new Set<string>();
@@ -98,6 +107,7 @@ export default function AllocationView({
                 weekStarts={weekStarts}
                 allocationMap={allocationMap}
                 bgColor={getProjectBg(idx)}
+                monthBoundaries={monthBoundaries}
                 onCellEdit={onCellEdit}
               />
             ))}
