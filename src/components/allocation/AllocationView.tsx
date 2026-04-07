@@ -127,7 +127,7 @@ export default function AllocationView({
   return (
     <div className="flex flex-col h-full w-full max-w-6xl mx-auto px-12">
       {/* Scroll container */}
-      <div ref={scrollRef} className="flex-1 overflow-auto pb-15 border-t-4 border-2 border-zinc-900">
+      <div ref={scrollRef} className="flex-1 overflow-auto mb-15 border-t-4 border-2 border-zinc-900">
         {activeView === "project" && (
           <div style={{ minWidth: totalWidth }}>
             <DateHeader

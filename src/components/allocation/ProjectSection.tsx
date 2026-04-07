@@ -106,7 +106,7 @@ export default function ProjectSection({
           <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
             {/* Teammate name — sticky, positioned right after the project info */}
             <div
-              className="sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium text-zinc-700 truncate border-r border-b border-zinc-200"
+              className="sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium text-zinc-700 truncate border-b border-zinc-200 border-r-2 border-r-zinc-900"
               style={{ left: PROJECT_INFO_WIDTH, width: TEAMMATE_NAME_WIDTH, minWidth: TEAMMATE_NAME_WIDTH, background: "white" }}
             >
               {teammate.name}

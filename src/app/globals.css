@@ -18,6 +18,10 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+html, body {
+  overscroll-behavior: none;
+}
+
 /* Sidebar slide animation */
 @keyframes slideInLeft {
   from { transform: translateX(-100%); }
