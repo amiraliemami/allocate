@@ -121,7 +121,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
       {/* Panel + attached handle */}
       {open && (
         <div
-          className={`fixed inset-y-0 right-0 z-50 flex w-[82%] max-w-[1000px] flex-col border-l-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-right" : "slide-in-right"}`}
+          className={`fixed inset-y-0 right-0 z-50 flex w-[60%] max-w-[1000px] flex-col border-l-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-right" : "slide-in-right"}`}
         >
           {/* Handle — attached to left edge of panel */}
           <div className="absolute left-2 top-2/3 -translate-y-1/2 -translate-x-full z-[51]">
@@ -139,7 +139,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
           </div>
 
           {/* Header */}
-          <div className="flex items-start justify-start gap-3 px-6 pt-4 pb-1">
+          <div className="flex items-start justify-start gap-3 px-8 pt-8 pb-6">
             {filtersActive ? (
               <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5">
                 <span className="text-sm font-medium">Filters active</span>
@@ -161,7 +161,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-auto mx-5 my-3 border-2 border-zinc-900">
+          <div className="flex-1 overflow-auto mx-8 mb-10 border-2 border-zinc-900">
             <TeammatesTable
               teammates={teammates}
               onUpdate={handleUpdate}

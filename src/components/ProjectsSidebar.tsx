@@ -147,7 +147,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
             </button>
           </div>
           {/* Header */}
-          <div className="flex items-end justify-end gap-3 px-6 pt-4 pb-1">
+          <div className="flex items-end justify-end gap-3 px-8 pt-8 pb-6">
             {filtersActive ? (
               <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5">
                 <span className="text-sm font-medium">Filters active</span>
@@ -169,7 +169,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-auto mx-5 my-3 border-2 border-zinc-900">
+          <div className="flex-1 overflow-auto mx-8 mb-10 border-2 border-zinc-900">
             <ProjectsTable
               projects={projects}
               teammates={teammates}

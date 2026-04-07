@@ -25,6 +25,9 @@ interface Props {
   allocationMap: Map<string, Allocation>;
   bgColor: string;
   monthBoundaries: Set<string>;
+  teammateStatusFilter?: Set<string>;
+  teammateIdFilter?: Set<string>;
+  showProjectDetails?: boolean;
   onCellEdit: (
     projectId: string,
     teammateId: string,
@@ -41,6 +44,9 @@ export default function ProjectSection({
   allocationMap,
   bgColor,
   monthBoundaries,
+  teammateStatusFilter,
+  teammateIdFilter,
+  showProjectDetails,
   onCellEdit,
 }: Props) {
   const teammateIds = new Set<string>();
@@ -52,7 +58,13 @@ export default function ProjectSection({
     }
   }
 
-  const projectTeammates = teammates.filter((t) => teammateIds.has(t.id));
+  let projectTeammates = teammates.filter((t) => teammateIds.has(t.id));
+  if (teammateStatusFilter && teammateStatusFilter.size > 0) {
+    projectTeammates = projectTeammates.filter((t) => teammateStatusFilter.has(t.status));
+  }
+  if (teammateIdFilter && teammateIdFilter.size > 0) {
+    projectTeammates = projectTeammates.filter((t) => teammateIdFilter.has(t.id));
+  }
   if (projectTeammates.length === 0) return null;
 
   const statusColors = STATUS_COLORS[project.status as keyof typeof STATUS_COLORS];
@@ -61,25 +73,29 @@ export default function ProjectSection({
     <div className="mt-4 border-t-2 border-zinc-200 flex">
       {/* Project info — sticky left, spans full height of this section */}
       <div
-        className="sticky left-0 z-10 shrink-0 border-x border-b border-zinc-200 px-3 py-2"
-        style={{ width: PROJECT_INFO_WIDTH, minWidth: PROJECT_INFO_WIDTH, minHeight: ROW_HEIGHT * 4, backgroundColor: "white" }}
+        className="sticky left-0 z-10 shrink-0 border-r border-zinc-200 px-3 py-1"
+        style={{ width: PROJECT_INFO_WIDTH, minWidth: PROJECT_INFO_WIDTH, minHeight: ROW_HEIGHT, backgroundColor: "white" }}
       >
         <div className="flex flex-col gap-0.5">
           <span className="font-bold text-md text-zinc-900 leading-tight">
             {project.name}
           </span>
-          <span className="text-sm text-zinc-500 leading-tight">
-            {[project.region, project.billingRate].filter(Boolean).join(", ")}
-          </span>
-          {project.lead && (
-            <span className="text-sm font-bold text-violet-700 leading-tight">
-              ★ {project.lead.name}
-            </span>
-          )}
-          {statusColors && (
-            <span className={`self-start text-sm font-bold px-2 py-0.5 rounded-md border mt-1 ${statusColors.chip}`}>
-              {project.status}
-            </span>
+          {showProjectDetails && (
+            <>
+              <span className="text-sm text-zinc-500 leading-tight">
+                {[project.region, project.billingRate].filter(Boolean).join(", ")}
+              </span>
+              {project.lead && (
+                <span className="text-sm font-bold text-violet-700 leading-tight">
+                  ★ {project.lead.name}
+                </span>
+              )}
+              {statusColors && (
+                <span className={`self-start text-sm font-bold px-2 py-0.5 rounded-md border mt-1 ${statusColors.chip}`}>
+                  {project.status}
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -90,7 +106,7 @@ export default function ProjectSection({
           <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
             {/* Teammate name — sticky, positioned right after the project info */}
             <div
-              className="sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium text-zinc-700 truncate border-r border-b border-zinc-200"
+              className="sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium text-zinc-700 truncate border-b border-zinc-200 border-r-2 border-r-zinc-900"
               style={{ left: PROJECT_INFO_WIDTH, width: TEAMMATE_NAME_WIDTH, minWidth: TEAMMATE_NAME_WIDTH, background: "white" }}
             >
               {teammate.name}

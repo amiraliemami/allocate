@@ -18,6 +18,10 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+html, body {
+  overscroll-behavior: none;
+}
+
 /* Sidebar slide animation */
 @keyframes slideInLeft {
   from { transform: translateX(-100%); }
@@ -63,6 +67,11 @@ body {
 
 .slide-out-right {
   animation: slideOutRight 0.3s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 @keyframes wiggle {
@@ -120,12 +129,13 @@ body {
   transition: all 0.1s ease;
 }
 
-.btn-chunky:hover {
+.btn-chunky:not(.btn-chunky-pressed):hover {
   box-shadow: 1.5px 2px 0 #1a1a1a;
   transform: translate(1px, 1px);
 }
 
-.btn-chunky:active {
+.btn-chunky:active,
+.btn-chunky-pressed {
   box-shadow: 0px 1px 0 #1a1a1a;
   transform: translate(3px, 3px);
 }
