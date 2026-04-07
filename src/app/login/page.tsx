@@ -31,11 +31,13 @@ export default function LoginPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
+    setPassword(e.target.value);
     setError(false);
-    if (value.length > 0) {
-      tryLogin(value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && password) {
+      tryLogin(password);
     }
   };
 
@@ -63,6 +65,7 @@ export default function LoginPage() {
           type="password"
           value={password}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           autoComplete="off"
           data-1p-ignore
           data-lpignore="true"
