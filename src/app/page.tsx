@@ -1,66 +1,81 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import ProjectsSidebar from "@/components/ProjectsSidebar";
+import TeammatesSidebar from "@/components/TeammatesSidebar";
+import type { Project } from "@/components/ProjectsSidebar";
+import type { Teammate } from "@/components/TeammatesSidebar";
 
 export default function Home() {
+  const [projectsOpen, setProjectsOpen] = useState(false);
+  const [teammatesOpen, setTeammatesOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [teammates, setTeammates] = useState<Teammate[]>([]);
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
+
+  const fetchAll = useCallback(async () => {
+    const [projRes, teamRes] = await Promise.all([
+      fetch("/api/projects"),
+      fetch("/api/teammates"),
+    ]);
+    const [projData, teamData] = await Promise.all([
+      projRes.json(),
+      teamRes.json(),
+    ]);
+    setProjects(projData);
+    setTeammates(teamData);
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-              style={{ width: "auto", height: "auto" }}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="relative flex h-screen flex-col overflow-hidden bg-white">
+      {/* Top bar */}
+      <header className="flex items-center justify-center border-b-2 border-zinc-900 bg-white px-6 py-3">
+        <button
+          onClick={handleSignOut}
+          className="group relative text-xl font-bold tracking-tight text-zinc-900 cursor-default hover:cursor-pointer"
+        >
+          <span className="inline-block transition-all duration-300 group-hover:scale-0 group-hover:opacity-0">
+            A L L O C A T E
+          </span>
+          <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 group-hover:animate-spin group-hover:[animation-duration:0.7s] font-black tracking-widest">
+            B Y E B Y E
+          </span>
+        </button>
+      </header>
+
+      {/* Main content area — allocation views will go here */}
+      <main className="flex flex-1 items-center justify-center">
+        <p className="text-zinc-300 text-lg">Allocation view coming soon</p>
       </main>
+
+      {/* Projects sidebar + handle (left) */}
+      <ProjectsSidebar
+        open={projectsOpen}
+        onClose={() => setProjectsOpen(false)}
+        onOpen={() => { setTeammatesOpen(false); setProjectsOpen(true); }}
+        projects={projects}
+        setProjects={setProjects}
+        teammates={teammates}
+      />
+
+      {/* Teammates sidebar + handle (right) */}
+      <TeammatesSidebar
+        open={teammatesOpen}
+        onClose={() => setTeammatesOpen(false)}
+        onOpen={() => { setProjectsOpen(false); setTeammatesOpen(true); }}
+        teammates={teammates}
+        setTeammates={setTeammates}
+      />
     </div>
   );
 }

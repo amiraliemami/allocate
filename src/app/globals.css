@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #1a1a1a;
 }
 
 @theme inline {
@@ -12,15 +12,138 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/* Sidebar slide animation */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideOutLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.slide-out-left {
+  animation: slideOutLeft 0.25s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.3s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg) scale(1.1); }
+  25% { transform: rotate(3deg) scale(1.15); }
+  50% { transform: rotate(-2deg) scale(1.1); }
+  75% { transform: rotate(4deg) scale(1.12); }
+}
+
+.fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.15s ease-in forwards;
+}
+
+/* Filter popover entrance */
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.filter-popover {
+  animation: popIn 0.15s ease-out forwards;
+}
+
+/* Sidebar tab handle */
+.sidebar-tab {
+  display: flex;
+  align-items: center;
+  border: 2px solid #1a1a1a;
+  border-radius: 0 0.75rem 0.75rem 0;
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #1a1a1a;
+  transition: all 0.1s ease;
+}
+
+.sidebar-tab:active {
+  box-shadow: 0 2px 0 #1a1a1a;
+  transform: translateY(1px);
+}
+
+.sidebar-tab-right {
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
+/* Chunky shadow style for buttons */
+.btn-chunky {
+  border: 2px solid #1a1a1a;
+  box-shadow: 2px 3px 0 #1a1a1a;
+  transition: all 0.1s ease;
+}
+
+.btn-chunky:hover {
+  box-shadow: 1.5px 2px 0 #1a1a1a;
+  transform: translate(1px, 1px);
+}
+
+.btn-chunky:active {
+  box-shadow: 0px 1px 0 #1a1a1a;
+  transform: translate(3px, 3px);
+}
+
+/* Inline editable cell */
+.cell-editable {
+  cursor: text;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.cell-editable:hover {
+  background: #f0edff;
+}
+
+.cell-editable:focus-within {
+  background: #e8e4ff;
+  outline: 2px solid #7c6ef0;
+  outline-offset: -1px;
+}
+
