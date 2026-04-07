@@ -7,4 +7,116 @@ datasource db {
   provider = "postgresql"
 }
 
-// TODO: Define models for Team, Project, and Allocation
+// ─── Enums ────────────────────────────────────────────────
+
+enum Role {
+  DS
+  DE
+  FSE
+  PM
+}
+
+enum Level {
+  I
+  II
+  III
+  IV
+  Chief
+}
+
+enum Region {
+  Global
+  IND
+  WNA
+  ESA
+}
+
+enum TeammateStatus {
+  Active
+  Alumni
+}
+
+enum Pillar {
+  Products
+  Services
+  Advisory
+}
+
+enum BillingRate {
+  Internal
+  L1
+  Fractional
+}
+
+enum ProjectStatus {
+  Pipeline
+  Active
+  Inactive
+  Archive
+  Completed
+}
+
+// ─── Models ───────────────────────────────────────────────
+
+model Teammate {
+  id     String         @id @default(cuid())
+  name   String
+  email  String         @unique
+  role   Role
+  level  Level
+  region Region
+  status TeammateStatus @default(Active)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ledProjects Project[]
+  allocations Allocation[]
+
+  @@index([status])
+  @@map("teammates")
+}
+
+model Project {
+  id                    String        @id @default(cuid())
+  name                  String
+  pillar                Pillar
+  region                Region
+  billingRate           BillingRate
+  status                ProjectStatus @default(Pipeline)
+  conversionProbability Int?
+  billable              Boolean       @default(false)
+
+  leadId String?
+  lead   Teammate? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allocations Allocation[]
+
+  @@index([status])
+  @@index([leadId])
+  @@map("projects")
+}
+
+model Allocation {
+  id         String   @id @default(cuid())
+  teammateId String
+  projectId  String
+  weekStart  DateTime @db.Date
+  fraction   Int
+  isHidden   Boolean  @default(false)
+
+  teammate Teammate @relation(fields: [teammateId], references: [id], onDelete: Restrict)
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teammateId, projectId, weekStart])
+  @@index([teammateId])
+  @@index([projectId])
+  @@index([weekStart])
+  @@map("allocations")
+}
