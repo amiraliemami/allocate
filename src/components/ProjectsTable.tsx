@@ -230,7 +230,7 @@ export default function ProjectsTable({
           col ? (
             <div
               key={col.field}
-              className="relative px-2 py-2 text-left flex items-center gap-1 hover:bg-violet-50 transition-colors cursor-pointer select-none"
+              className="relative px-2 py-2 text-left flex items-center gap-1 hover:bg-violet-100 transition-colors cursor-pointer select-none"
               onClick={() => toggleFilter(col.field)}
             >
               {col.label}

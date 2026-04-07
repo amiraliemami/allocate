@@ -117,8 +117,9 @@ export default function TeammatesSidebar({ open, onClose, onOpen }: Props) {
             <span className="px-1.5">
               {"\u2039"}
             </span>
-            <span className="px-2.5 transition-all w-0 overflow-hidden whitespace-nowrap group-hover:w-16 group-hover:px-2">
-              Team
+            <span className="pr-4 transition-all w-5 whitespace-nowrap group-hover:w-14">
+              <span className="group-hover:hidden ">T</span>
+              <span className="hidden group-hover:inline">Team</span>
             </span>
           </button>
         </div>
@@ -146,7 +147,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen }: Props) {
               <span className="px-1.5">
                 {"\u203A"}
               </span>
-              <span className="px-2.5 whitespace-nowrap">
+              <span className="pr-3 pl-1  whitespace-nowrap">
                 Team
               </span>
             </button>
@@ -155,11 +156,11 @@ export default function TeammatesSidebar({ open, onClose, onOpen }: Props) {
           {/* Header */}
           <div className="flex items-start justify-start gap-3 px-6 pt-4 pb-1">
             {filtersActive ? (
-              <div className="flex items-center gap-2 rounded-lg border-2 border-emerald-300 bg-emerald-50 px-3 py-1.5">
-                <span className="text-sm font-medium text-emerald-700">Filters active</span>
+              <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5">
+                <span className="text-sm font-medium">Filters active</span>
                 <button
                   onClick={() => clearFilters?.()}
-                  className="btn-chunky rounded-md bg-white px-2 py-0.5 text-xs font-bold text-emerald-700"
+                  className="btn-chunky rounded-md px-2 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-100"
                 >
                   Clear all
                 </button>

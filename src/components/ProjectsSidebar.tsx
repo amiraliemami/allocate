@@ -129,9 +129,9 @@ export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
         <div className="fixed -left-0.5 top-1/2 -translate-y-1/2 z-[51]">
           <button
             onClick={onOpen}
-            className="sidebar-tab group bg-violet-200 text-violet-700"
+            className="sidebar-tab group bg-violet-100 text-violet-700"
           >
-            <span className="px-2.5 transition-all w-0 overflow-hidden whitespace-nowrap group-hover:w-20 group-hover:px-2">
+            <span className="px-2.5 transition-all w-0 overflow-hidden whitespace-nowrap group-hover:w-18 group-hover:px-2">
               Projects
             </span>
             <span className="px-1.5">
@@ -158,9 +158,9 @@ export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
           <div className="absolute right-2 top-1/2 -translate-y-1/2 translate-x-full z-[51]">
             <button
               onClick={handleClose}
-              className="sidebar-tab bg-violet-200 text-violet-700"
+              className="sidebar-tab bg-violet-100 text-violet-700"
             >
-              <span className="px-2.5 whitespace-nowrap">
+              <span className="pl-3 pr-1 whitespace-nowrap">
                 Projects
               </span>
               <span className="px-1.5">
@@ -171,11 +171,11 @@ export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
           {/* Header */}
           <div className="flex items-start justify-start gap-3 px-6 pt-4 pb-1">
             {filtersActive ? (
-              <div className="flex items-center gap-2 rounded-lg border-2 border-violet-300 bg-violet-50 px-3 py-1.5">
-                <span className="text-sm font-medium text-violet-700">Filters active</span>
+              <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5">
+                <span className="text-sm font-medium">Filters active</span>
                 <button
                   onClick={() => clearFilters?.()}
-                  className="btn-chunky rounded-md bg-white px-2 py-0.5 text-xs font-bold text-violet-700"
+                  className="btn-chunky rounded-md px-2 py-0.5 text-xs font-bold text-violet-700 bg-violet-100"
                 >
                   Clear all
                 </button>
