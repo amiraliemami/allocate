@@ -65,6 +65,13 @@ body {
   animation: slideOutRight 0.3s cubic-bezier(0.5, 0, 0.75, 0) forwards;
 }
 
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg) scale(1.1); }
+  25% { transform: rotate(3deg) scale(1.15); }
+  50% { transform: rotate(-2deg) scale(1.1); }
+  75% { transform: rotate(4deg) scale(1.12); }
+}
+
 .fade-in {
   animation: fadeIn 0.2s ease-out forwards;
 }

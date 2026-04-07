@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import ProjectsSidebar from "@/components/ProjectsSidebar";
 import TeammatesSidebar from "@/components/TeammatesSidebar";
 import type { Project } from "@/components/ProjectsSidebar";
@@ -11,6 +12,12 @@ export default function Home() {
   const [teammatesOpen, setTeammatesOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [teammates, setTeammates] = useState<Teammate[]>([]);
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
 
   const fetchAll = useCallback(async () => {
     const [projRes, teamRes] = await Promise.all([
@@ -33,9 +40,17 @@ export default function Home() {
     <div className="relative flex h-screen flex-col overflow-hidden bg-white">
       {/* Top bar */}
       <header className="flex items-center justify-center border-b-2 border-zinc-900 bg-white px-6 py-3">
-        <h1 className="text-xl font-bold tracking-tight text-zinc-900">
-          A L L O C A T E
-        </h1>
+        <button
+          onClick={handleSignOut}
+          className="group relative text-xl font-bold tracking-tight text-zinc-900 cursor-default hover:cursor-pointer"
+        >
+          <span className="inline-block transition-all duration-300 group-hover:scale-0 group-hover:opacity-0">
+            A L L O C A T E
+          </span>
+          <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 group-hover:animate-spin group-hover:[animation-duration:0.7s] font-black tracking-widest">
+            B Y E B Y E
+          </span>
+        </button>
       </header>
 
       {/* Main content area — allocation views will go here */}
