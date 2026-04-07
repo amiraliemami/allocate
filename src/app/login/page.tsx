@@ -7,6 +7,7 @@ export default function LoginPage() {
   const [hovering, setHovering] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -18,6 +19,7 @@ export default function LoginPage() {
 
   const tryLogin = async (value: string) => {
     setError(false);
+    setLoading(true);
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -27,6 +29,7 @@ export default function LoginPage() {
       router.push("/");
     } else {
       setError(true);
+      setLoading(false);
     }
   };
 
@@ -50,17 +53,23 @@ export default function LoginPage() {
           if (!password) setHovering(false);
         }}
       >
-        {/* Title — visible when not hovering */}
-        <h1
-          className={`text-2xl font-bold tracking-widest text-zinc-900 transition-all duration-300 cursor-default select-none ${
-            hovering ? "opacity-0 scale-90" : "opacity-100 scale-100"
-          }`}
-        >
-          A L L O C A T E
-        </h1>
+        {loading ? (
+          <div className="flex items-center justify-center py-1">
+            <div className="h-6 w-6 animate-spin rounded-full border-3 border-zinc-200 border-t-zinc-900" />
+          </div>
+        ) : (
+          <>
+            {/* Title — visible when not hovering */}
+            <h1
+              className={`text-2xl font-bold tracking-widest text-zinc-900 transition-all duration-300 cursor-default select-none ${
+                hovering ? "opacity-0 scale-90" : "opacity-100 scale-100"
+              }`}
+            >
+              A L L O C A T E
+            </h1>
 
-        {/* Password input — appears on hover */}
-        <input
+            {/* Password input — appears on hover */}
+            <input
           ref={inputRef}
           type="password"
           value={password}
@@ -74,6 +83,8 @@ export default function LoginPage() {
           } ${error ? "text-rose-800 animate-bounce [animation-duration:0.3s]" : "text-zinc-900"}`}
           placeholder=""
         />
+          </>
+        )}
       </div>
     </div>
   );

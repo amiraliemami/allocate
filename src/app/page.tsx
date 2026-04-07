@@ -12,6 +12,7 @@ export default function Home() {
   const [teammatesOpen, setTeammatesOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [teammates, setTeammates] = useState<Teammate[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -20,16 +21,18 @@ export default function Home() {
   };
 
   const fetchAll = useCallback(async () => {
-    const [projRes, teamRes] = await Promise.all([
-      fetch("/api/projects"),
-      fetch("/api/teammates"),
-    ]);
-    const [projData, teamData] = await Promise.all([
-      projRes.json(),
-      teamRes.json(),
-    ]);
-    setProjects(projData);
-    setTeammates(teamData);
+    setDataLoading(true);
+    try {
+      const [projRes, teamRes] = await Promise.all([
+        fetch("/api/projects"),
+        fetch("/api/teammates"),
+      ]);
+      if (projRes.ok) setProjects(await projRes.json());
+      if (teamRes.ok) setTeammates(await teamRes.json());
+    } catch {
+      // Network error — data stays empty
+    }
+    setDataLoading(false);
   }, []);
 
   useEffect(() => {
@@ -55,7 +58,11 @@ export default function Home() {
 
       {/* Main content area — allocation views will go here */}
       <main className="flex flex-1 items-center justify-center">
-        <p className="text-zinc-300 text-lg">Allocation view coming soon</p>
+        {dataLoading ? (
+          <div className="h-8 w-8 animate-spin rounded-full border-3 border-zinc-200 border-t-zinc-900" />
+        ) : (
+          <p className="text-zinc-300 text-lg">Allocation view coming soon</p>
+        )}
       </main>
 
       {/* Projects sidebar + handle (left) */}
