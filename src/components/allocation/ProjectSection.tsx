@@ -27,6 +27,7 @@ interface Props {
   monthBoundaries: Set<string>;
   teammateStatusFilter?: Set<string>;
   teammateIdFilter?: Set<string>;
+  showProjectDetails?: boolean;
   onCellEdit: (
     projectId: string,
     teammateId: string,
@@ -45,6 +46,7 @@ export default function ProjectSection({
   monthBoundaries,
   teammateStatusFilter,
   teammateIdFilter,
+  showProjectDetails,
   onCellEdit,
 }: Props) {
   const teammateIds = new Set<string>();
@@ -71,25 +73,29 @@ export default function ProjectSection({
     <div className="mt-4 border-t-2 border-zinc-200 flex">
       {/* Project info — sticky left, spans full height of this section */}
       <div
-        className="sticky left-0 z-10 shrink-0 border-x border-b border-zinc-200 px-3 py-2"
-        style={{ width: PROJECT_INFO_WIDTH, minWidth: PROJECT_INFO_WIDTH, minHeight: ROW_HEIGHT * 4, backgroundColor: "white" }}
+        className="sticky left-0 z-10 shrink-0 border-r border-zinc-200 px-3 py-1"
+        style={{ width: PROJECT_INFO_WIDTH, minWidth: PROJECT_INFO_WIDTH, minHeight: ROW_HEIGHT, backgroundColor: "white" }}
       >
         <div className="flex flex-col gap-0.5">
           <span className="font-bold text-md text-zinc-900 leading-tight">
             {project.name}
           </span>
-          <span className="text-sm text-zinc-500 leading-tight">
-            {[project.region, project.billingRate].filter(Boolean).join(", ")}
-          </span>
-          {project.lead && (
-            <span className="text-sm font-bold text-violet-700 leading-tight">
-              ★ {project.lead.name}
-            </span>
-          )}
-          {statusColors && (
-            <span className={`self-start text-sm font-bold px-2 py-0.5 rounded-md border mt-1 ${statusColors.chip}`}>
-              {project.status}
-            </span>
+          {showProjectDetails && (
+            <>
+              <span className="text-sm text-zinc-500 leading-tight">
+                {[project.region, project.billingRate].filter(Boolean).join(", ")}
+              </span>
+              {project.lead && (
+                <span className="text-sm font-bold text-violet-700 leading-tight">
+                  ★ {project.lead.name}
+                </span>
+              )}
+              {statusColors && (
+                <span className={`self-start text-sm font-bold px-2 py-0.5 rounded-md border mt-1 ${statusColors.chip}`}>
+                  {project.status}
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>

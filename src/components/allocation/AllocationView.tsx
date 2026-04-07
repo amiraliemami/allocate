@@ -50,6 +50,7 @@ export default function AllocationView({
 }: Props) {
   const [activeView, setActiveView] = useState<"project" | "teammate">("project");
   const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
+  const [showProjectDetails, setShowProjectDetails] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const updateFilter = useCallback(
@@ -140,6 +141,8 @@ export default function AllocationView({
               onFilterChange={updateFilter}
               projects={projects}
               teammates={teammates}
+              showProjectDetails={showProjectDetails}
+              onToggleProjectDetails={() => setShowProjectDetails((v) => !v)}
             />
             {activeProjects.map((project, idx) => (
               <ProjectSection
@@ -152,6 +155,7 @@ export default function AllocationView({
                 monthBoundaries={monthBoundaries}
                 teammateStatusFilter={filters.teammateStatus}
                 teammateIdFilter={filters.teammateId}
+                showProjectDetails={showProjectDetails}
                 onCellEdit={onCellEdit}
               />
             ))}

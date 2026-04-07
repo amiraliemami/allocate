@@ -23,6 +23,8 @@ interface Props {
   ) => void;
   projects: Project[];
   teammates: Teammate[];
+  showProjectDetails: boolean;
+  onToggleProjectDetails: () => void;
 }
 
 function formatMonthLabel(month: MonthGroup): string {
@@ -47,6 +49,8 @@ export default function DateHeader({
   onFilterChange,
   projects,
   teammates,
+  showProjectDetails,
+  onToggleProjectDetails,
 }: Props) {
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
@@ -95,8 +99,24 @@ export default function DateHeader({
         className="sticky left-0 z-30 bg-white shrink-0 border-b-2 border-r-2  px-2 pb-2"
         style={{ width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH }}
       >
-        <div className="text-sm font-bold mb-1">filters are here filters are here filters</div>
+        <div className="text-sm font-bold mb-1">controls controls controls controls con</div>
         <div className="flex flex-wrap gap-1.5">
+
+          {/* Show project details toggle */}
+          <div
+            className={`flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md cursor-pointer select-none transition-colors border-2 border-zinc-900 ${
+              showProjectDetails
+                ? "bg-purple-100"
+                : "bg-white hover:bg-purple-100"
+            }`}
+            style={{ boxShadow: "1px 2px 0 #1a1a1a" }}
+            onClick={onToggleProjectDetails}
+          >
+            Show details
+            {showProjectDetails && (
+              <span className="text-zinc-400 hover:text-red-900 ml-0.5">×</span>
+            )}
+          </div>
           {filterDefs.map((def) => {
             const activeLabel = getChipLabel(def);
             const isOpen = openFilter === def.key;
