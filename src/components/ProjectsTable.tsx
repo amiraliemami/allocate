@@ -8,7 +8,6 @@ import { STATUS_COLORS, STATUS_ORDER } from "@/lib/statusColors";
 import ColumnFilterPopover from "./ColumnFilterPopover";
 import TextFilter from "./filters/TextFilter";
 import MultiSelectFilter from "./filters/MultiSelectFilter";
-import ToggleFilter from "./filters/ToggleFilter";
 
 type Teammate = { id: string; name: string };
 
@@ -19,7 +18,7 @@ type ProjectFilters = {
   billingRate: Set<string>;
   status: Set<string>;
   conversionProbability: Set<string>;
-  billable: "all" | "yes" | "no";
+  billable: Set<string>;
   unit4Code: string;
   leadId: Set<string>;
 };
@@ -31,7 +30,7 @@ const EMPTY_FILTERS: ProjectFilters = {
   billingRate: new Set(),
   status: new Set(),
   conversionProbability: new Set(),
-  billable: "all",
+  billable: new Set(),
   unit4Code: "",
   leadId: new Set(),
 };
@@ -44,7 +43,7 @@ function isFilterActive(filters: ProjectFilters): boolean {
     filters.billingRate.size > 0 ||
     filters.status.size > 0 ||
     filters.conversionProbability.size > 0 ||
-    filters.billable !== "all" ||
+    filters.billable.size > 0 ||
     filters.unit4Code !== "" ||
     filters.leadId.size > 0
   );
@@ -143,8 +142,7 @@ export default function ProjectsTable({
       if (filters.region.size > 0 && !filters.region.has(p.region ?? "")) return false;
       if (filters.billingRate.size > 0 && !filters.billingRate.has(p.billingRate ?? "")) return false;
       if (filters.conversionProbability.size > 0 && !filters.conversionProbability.has(String(p.conversionProbability ?? ""))) return false;
-      if (filters.billable === "yes" && !p.billable) return false;
-      if (filters.billable === "no" && p.billable) return false;
+      if (filters.billable.size > 0 && !filters.billable.has(String(p.billable))) return false;
       if (filters.unit4Code && !(p.unit4Code ?? "").toLowerCase().includes(filters.unit4Code.toLowerCase())) return false;
       if (filters.leadId.size > 0 && !filters.leadId.has(p.leadId ?? "")) return false;
       return true;
@@ -187,7 +185,7 @@ export default function ProjectsTable({
     { field: "billingRate", label: "Rate" },
     { field: "status", label: "Status" },
     { field: "conversionProbability", label: "Prob%" },
-    { field: "billable", label: "Bill" },
+    { field: "billable", label: "Billable" },
     { field: "unit4Code", label: "U4 Code" },
     { field: "leadId", label: "Lead", align: "right" },
     null, // delete column
@@ -210,7 +208,7 @@ export default function ProjectsTable({
       case "conversionProbability":
         return <MultiSelectFilter options={CONV_PROB_OPTIONS.filter((o) => o.value)} selected={filters.conversionProbability} onChange={(v) => updateFilter("conversionProbability", v)} />;
       case "billable":
-        return <ToggleFilter value={filters.billable} onChange={(v) => updateFilter("billable", v)} />;
+        return <MultiSelectFilter options={[{ value: "true", label: "Yes" }, { value: "false", label: "No" }]} selected={filters.billable} onChange={(v) => updateFilter("billable", v)} />;
       case "leadId":
         return <MultiSelectFilter options={leadFilterOptions} selected={filters.leadId} onChange={(v) => updateFilter("leadId", v)} searchable />;
       default:

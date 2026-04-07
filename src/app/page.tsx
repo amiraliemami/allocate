@@ -1,12 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ProjectsSidebar from "@/components/ProjectsSidebar";
 import TeammatesSidebar from "@/components/TeammatesSidebar";
+import type { Project } from "@/components/ProjectsSidebar";
+import type { Teammate } from "@/components/TeammatesSidebar";
 
 export default function Home() {
   const [projectsOpen, setProjectsOpen] = useState(false);
   const [teammatesOpen, setTeammatesOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [teammates, setTeammates] = useState<Teammate[]>([]);
+
+  const fetchAll = useCallback(async () => {
+    const [projRes, teamRes] = await Promise.all([
+      fetch("/api/projects"),
+      fetch("/api/teammates"),
+    ]);
+    const [projData, teamData] = await Promise.all([
+      projRes.json(),
+      teamRes.json(),
+    ]);
+    setProjects(projData);
+    setTeammates(teamData);
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-white">
@@ -27,6 +48,9 @@ export default function Home() {
         open={projectsOpen}
         onClose={() => setProjectsOpen(false)}
         onOpen={() => { setTeammatesOpen(false); setProjectsOpen(true); }}
+        projects={projects}
+        setProjects={setProjects}
+        teammates={teammates}
       />
 
       {/* Teammates sidebar + handle (right) */}
@@ -34,6 +58,8 @@ export default function Home() {
         open={teammatesOpen}
         onClose={() => setTeammatesOpen(false)}
         onOpen={() => { setProjectsOpen(false); setTeammatesOpen(true); }}
+        teammates={teammates}
+        setTeammates={setTeammates}
       />
     </div>
   );

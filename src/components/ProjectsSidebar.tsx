@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import ProjectsTable from "./ProjectsTable";
 
 type Teammate = { id: string; name: string };
@@ -23,37 +23,15 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onOpen: () => void;
+  projects: Project[];
+  setProjects: Dispatch<SetStateAction<Project[]>>;
+  teammates: Teammate[];
 }
 
-export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [teammates, setTeammates] = useState<Teammate[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ProjectsSidebar({ open, onClose, onOpen, projects, setProjects, teammates }: Props) {
   const [closing, setClosing] = useState(false);
   const [filtersActive, setFiltersActive] = useState(false);
   const [clearFilters, setClearFilters] = useState<(() => void) | null>(null);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    const [projRes, teamRes] = await Promise.all([
-      fetch("/api/projects"),
-      fetch("/api/team"),
-    ]);
-    const [projData, teamData] = await Promise.all([
-      projRes.json(),
-      teamRes.json(),
-    ]);
-    setProjects(projData);
-    setTeammates(teamData);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    if (open) {
-      fetchData();
-      setClosing(false);
-    }
-  }, [open, fetchData]);
 
   const handleClose = () => {
     setClosing(true);
@@ -192,22 +170,16 @@ export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
 
           {/* Content */}
           <div className="flex-1 overflow-auto mx-5 my-3 border-2 border-zinc-900">
-            {loading ? (
-              <div className="flex h-full items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-3 border-violet-200 border-t-violet-600" />
-              </div>
-            ) : (
-              <ProjectsTable
-                projects={projects}
-                teammates={teammates}
-                onUpdate={handleUpdate}
-                onDelete={handleDelete}
-                onFilterChange={(active, clearFn) => {
-                  setFiltersActive(active);
-                  setClearFilters(() => clearFn);
-                }}
-              />
-            )}
+            <ProjectsTable
+              projects={projects}
+              teammates={teammates}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+              onFilterChange={(active, clearFn) => {
+                setFiltersActive(active);
+                setClearFilters(() => clearFn);
+              }}
+            />
           </div>
         </div>
       )}
