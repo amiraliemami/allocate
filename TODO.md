@@ -13,6 +13,7 @@
 - Backend
 - Frontend
 - Load on the current month
+- When entring allocations, tooltip should show remaining allocation e.g. "Remaining: 0.2" for each cell
 - Data cleanup
 - U4 project codes
 - Visualisations
