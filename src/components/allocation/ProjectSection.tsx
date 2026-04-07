@@ -25,6 +25,8 @@ interface Props {
   allocationMap: Map<string, Allocation>;
   bgColor: string;
   monthBoundaries: Set<string>;
+  teammateStatusFilter?: Set<string>;
+  teammateIdFilter?: Set<string>;
   onCellEdit: (
     projectId: string,
     teammateId: string,
@@ -41,6 +43,8 @@ export default function ProjectSection({
   allocationMap,
   bgColor,
   monthBoundaries,
+  teammateStatusFilter,
+  teammateIdFilter,
   onCellEdit,
 }: Props) {
   const teammateIds = new Set<string>();
@@ -52,7 +56,13 @@ export default function ProjectSection({
     }
   }
 
-  const projectTeammates = teammates.filter((t) => teammateIds.has(t.id));
+  let projectTeammates = teammates.filter((t) => teammateIds.has(t.id));
+  if (teammateStatusFilter && teammateStatusFilter.size > 0) {
+    projectTeammates = projectTeammates.filter((t) => teammateStatusFilter.has(t.status));
+  }
+  if (teammateIdFilter && teammateIdFilter.size > 0) {
+    projectTeammates = projectTeammates.filter((t) => teammateIdFilter.has(t.id));
+  }
   if (projectTeammates.length === 0) return null;
 
   const statusColors = STATUS_COLORS[project.status as keyof typeof STATUS_COLORS];

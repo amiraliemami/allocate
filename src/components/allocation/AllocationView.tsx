@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useState, useCallback } from "react";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import type { Allocation } from "./ProjectSection";
@@ -12,6 +12,20 @@ import ProjectSection from "./ProjectSection";
 
 const LEFT_PANEL_WIDTH = 260;
 const CELL_WIDTH = 56;
+
+export type AllocationFilters = {
+  projectStatus: Set<string>;
+  projectLeadId: Set<string>;
+  teammateStatus: Set<string>;
+  teammateId: Set<string>;
+};
+
+const EMPTY_FILTERS: AllocationFilters = {
+  projectStatus: new Set(),
+  projectLeadId: new Set(),
+  teammateStatus: new Set(),
+  teammateId: new Set(),
+};
 
 interface Props {
   projects: Project[];
@@ -35,7 +49,15 @@ export default function AllocationView({
   onCellEdit,
 }: Props) {
   const [activeView, setActiveView] = useState<"project" | "teammate">("project");
+  const [filters, setFilters] = useState<AllocationFilters>({ ...EMPTY_FILTERS });
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const updateFilter = useCallback(
+    <K extends keyof AllocationFilters>(key: K, value: AllocationFilters[K]) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
 
   const allocationMap = useMemo(() => {
     const map = new Map<string, Allocation>();
@@ -58,14 +80,19 @@ export default function AllocationView({
     return set;
   }, [monthGroups]);
 
-  // Filter to only active/pipeline projects that have allocations
+  // Filter to projects that have allocations + match active filters
   const activeProjects = useMemo(() => {
     const projectsWithAllocations = new Set<string>();
     for (const a of allocations) {
       if (!a.isHidden) projectsWithAllocations.add(a.projectId);
     }
-    return projects.filter((p) => projectsWithAllocations.has(p.id));
-  }, [projects, allocations]);
+    return projects.filter((p) => {
+      if (!projectsWithAllocations.has(p.id)) return false;
+      if (filters.projectStatus.size > 0 && !filters.projectStatus.has(p.status)) return false;
+      if (filters.projectLeadId.size > 0 && !filters.projectLeadId.has(p.leadId ?? "")) return false;
+      return true;
+    });
+  }, [projects, allocations, filters.projectStatus, filters.projectLeadId]);
 
   const totalWidth = LEFT_PANEL_WIDTH + weekStarts.length * CELL_WIDTH;
 
@@ -95,7 +122,13 @@ export default function AllocationView({
       <div ref={scrollRef} className="flex-1 overflow-auto pb-15">
         {activeView === "project" && (
           <div style={{ minWidth: totalWidth }}>
-            <DateHeader monthGroups={monthGroups} />
+            <DateHeader
+              monthGroups={monthGroups}
+              filters={filters}
+              onFilterChange={updateFilter}
+              projects={projects}
+              teammates={teammates}
+            />
             {activeProjects.map((project, idx) => (
               <ProjectSection
                 key={project.id}
@@ -105,6 +138,8 @@ export default function AllocationView({
                 allocationMap={allocationMap}
                 bgColor={getProjectBg(idx)}
                 monthBoundaries={monthBoundaries}
+                teammateStatusFilter={filters.teammateStatus}
+                teammateIdFilter={filters.teammateId}
                 onCellEdit={onCellEdit}
               />
             ))}
