@@ -129,7 +129,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
         <div className="fixed -left-0.5 top-1/2 -translate-y-1/2 z-[51]">
           <button
             onClick={onOpen}
-            className="sidebar-tab sidebar-tab group bg-violet-200 text-violet-700"
+            className="sidebar-tab group bg-violet-200 text-violet-700"
           >
             <span className="px-2.5 transition-all w-0 overflow-hidden whitespace-nowrap group-hover:w-20 group-hover:px-2">
               Projects
@@ -158,7 +158,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen }: Props) {
           <div className="absolute right-2 top-1/2 -translate-y-1/2 translate-x-full z-[51]">
             <button
               onClick={handleClose}
-              className="sidebar-tab sidebar-tab bg-violet-200 text-violet-700"
+              className="sidebar-tab bg-violet-200 text-violet-700"
             >
               <span className="px-2.5 whitespace-nowrap">
                 Projects
