@@ -12,7 +12,7 @@ export default function InlineSelect({ value, options, onSave, disabled }: Props
 
   return (
     <select
-      className={`cell-editable w-full bg-transparent px-2 py-2 text-sm outline-none appearance-none min-h-[36px] ${disabled ? "pointer-events-none opacity-40" : "cursor-pointer"}`}
+      className={`cell-editable w-full bg-transparent px-2 py-2 text-sm outline-none appearance-none min-h-[36px] truncate ${disabled ? "pointer-events-none opacity-40" : "cursor-pointer"}`}
       value={value}
       onChange={(e) => onSave(e.target.value)}
       disabled={disabled}
