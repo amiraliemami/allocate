@@ -47,7 +47,9 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, o
   };
 
   if (editing) {
-    const remaining = (100 - (teammateTotal ?? 0)) / 100;
+    const draftVal = parseFloat(draft) || 0;
+    const baseTotal = (teammateTotal ?? 0) - (fraction ?? 0);
+    const remaining = (100 - baseTotal - draftVal * 100) / 100;
     const remainingText = `${remaining.toFixed(1)} remaining`;
     const isOver = remaining <= 0;
 
