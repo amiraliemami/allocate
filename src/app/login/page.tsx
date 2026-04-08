@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [bounce, setBounce] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -37,6 +38,8 @@ export default function LoginPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     setError(false);
+    setBounce(false);
+    requestAnimationFrame(() => setBounce(true));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -49,25 +52,28 @@ export default function LoginPage() {
     <div className="relative flex min-h-screen items-center justify-center bg-white overflow-hidden">
       <LoginBackground />
       <div
-        className="relative z-10 animate-spin [animation-duration:5s] flex items-center justify-center px-24 py-16"
+        className="relative z-10 flex items-center justify-center"
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => {
           if (!password) setHovering(false);
         }}
       >
         {loading ? (
-          <div className="flex items-center justify-center py-1">
-            <div className="h-6 w-6 animate-spin rounded-full border-3 border-zinc-200 border-t-zinc-900" />
+          <div className="wavy-loader flex gap-1.5 text-2xl font-black">
+            {["L", "O", "A", "D", "I", "N", "G"].map((ch, i) => (
+              <span key={i} style={{ animationDelay: `${i * 0.1}s` }}>{ch}</span>
+            ))}
           </div>
         ) : (
           <>
             {/* Title — visible when not hovering */}
             <h1
-              className={`text-2xl font-bold tracking-widest text-zinc-900 transition-all duration-300 cursor-default select-none ${
-                hovering ? "opacity-0 scale-90" : "opacity-100 scale-100"
-              }`}
+              className={`wavy-loader flex gap-0.5 text-2xl font-bold text-zinc-900 transition-all duration-300 cursor-default select-none ${hovering ? "opacity-0 scale-90" : "opacity-100 scale-100"
+                }`}
             >
-              A L L O C A T E
+              {"A          L          L          O          C          A          T          E".split("").map((ch, i) => (
+                <span key={i} style={{ animationDelay: `${i * 0.02}s` }}>{ch}</span>
+              ))}
             </h1>
 
             {/* Password input — appears on hover */}
