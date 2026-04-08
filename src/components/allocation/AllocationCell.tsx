@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useState, useRef, useEffect } from "react";
 
 const CELL_WIDTH = 56;
 
@@ -14,9 +14,10 @@ interface Props {
 }
 
 function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, previewFraction, onEdit }: Props) {
-  const [editing, setEditing] = useState(false);
+  const [mode, setMode] = useState<"idle" | "selected" | "editing">("idle");
   const [draft, setDraft] = useState("");
   const [flashRed, setFlashRed] = useState(false);
+  const cellRef = useRef<HTMLDivElement>(null);
 
   const isPreview = previewFraction !== undefined;
   const showFraction = isPreview ? previewFraction : fraction;
@@ -30,7 +31,7 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
     : "border-l border-l-zinc-200";
 
   const reject = () => {
-    setEditing(false);
+    setMode("idle");
     setFlashRed(false);
     requestAnimationFrame(() => setFlashRed(true));
   };
@@ -38,18 +39,31 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
   const commit = () => {
     const trimmed = draft.trim();
     if (trimmed === "") {
-      setEditing(false);
+      setMode("idle");
       if (fraction != null) onEdit(null);
       return;
     }
     const parsed = parseFloat(trimmed);
     if (isNaN(parsed) || parsed <= 0) return reject();
     const intVal = Math.round(parsed * 100);
-    setEditing(false);
+    setMode("idle");
     if (intVal !== fraction) onEdit(intVal);
   };
 
-  if (editing) {
+  // Deselect when clicking outside
+  useEffect(() => {
+    if (mode === "idle") return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (cellRef.current && !cellRef.current.contains(e.target as Node)) {
+        if (mode === "editing") return; // input's onBlur handles this
+        setMode("idle");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mode]);
+
+  if (mode === "editing") {
     const draftVal = parseFloat(draft) || 0;
     const baseTotal = (teammateTotal ?? 0) - (fraction ?? 0);
     const remaining = (100 - baseTotal - draftVal * 100) / 100;
@@ -58,6 +72,7 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
 
     return (
       <div
+        ref={cellRef}
         style={{ width: CELL_WIDTH, minWidth: CELL_WIDTH }}
         className={`relative flex items-center justify-center h-full box-border ${borderClass}`}
       >
@@ -74,7 +89,7 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
           onBlur={commit}
           onKeyDown={(e) => {
             if (e.key === "Enter") commit();
-            if (e.key === "Escape") setEditing(false);
+            if (e.key === "Escape") setMode("idle");
           }}
           autoFocus
         />
@@ -84,20 +99,42 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
 
   return (
     <div
+      ref={cellRef}
+      tabIndex={0}
       style={{
         width: CELL_WIDTH,
         minWidth: CELL_WIDTH,
-        backgroundColor: unsaved ? "rgb(248, 248, 248)" : "transparent",
+        backgroundColor: unsaved ? "rgb(248, 248, 248)" : undefined,
         borderBottomWidth: isPreview ? 2 : undefined,
         borderBottomStyle: isPreview ? "solid" : undefined,
         borderBottomColor: isPreview ? "rgb(117, 117, 117)" : undefined,
         animation: flashRed ? "cellFlashRed 0.4s ease-out" : undefined,
+        outline: mode === "selected" ? "2px solid #7c3aed" : undefined,
+        outlineOffset: "-2px",
       }}
       onAnimationEnd={() => setFlashRed(false)}
       className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full border-b-1 border-zinc-200 box-border ${borderClass}`}
       onClick={() => {
+        if (mode !== "selected") setMode("selected");
+      }}
+      onDoubleClick={() => {
         setDraft(displayValue);
-        setEditing(true);
+        setMode("editing");
+      }}
+      onKeyDown={(e) => {
+        if (mode !== "selected") return;
+        if (e.key === "Delete" || e.key === "Backspace") {
+          e.preventDefault();
+          if (fraction != null) onEdit(null);
+          setMode("idle");
+        } else if (e.key === "Escape") {
+          setMode("idle");
+        } else if (e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
+          // Start typing — enter edit mode with the typed character as initial draft
+          e.preventDefault();
+          setDraft(e.key);
+          setMode("editing");
+        }
       }}
     >
       {displayValue}
