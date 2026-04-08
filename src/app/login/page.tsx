@@ -49,7 +49,7 @@ export default function LoginPage() {
     <div className="relative flex min-h-screen items-center justify-center bg-white overflow-hidden">
       <LoginBackground />
       <div
-        className="relative z-10 animate-spin [animation-duration:5s] "
+        className="relative z-10 animate-spin [animation-duration:5s] flex items-center justify-center px-24 py-16"
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => {
           if (!password) setHovering(false);
