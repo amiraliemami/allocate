@@ -5,7 +5,7 @@ import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import AllocationCell from "./AllocationCell";
 import { STATUS_COLORS } from "@/lib/statusColors";
-import { UserRoundPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 export const PROJECT_INFO_WIDTH = 200;
 export const TEAMMATE_NAME_WIDTH = 90;
@@ -109,13 +109,13 @@ export default function ProjectSection({
   return (
     <div
       className="mt-4 border-t-2 border-zinc-200 flex"
-      onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >
       {/* Project info — sticky left, spans full height of this section */}
       <div
         className="sticky left-0 z-10 shrink-0 border-r border-zinc-200 px-3 py-1 relative"
         style={{ width: PROJECT_INFO_WIDTH, minWidth: PROJECT_INFO_WIDTH, minHeight: ROW_HEIGHT, backgroundColor: "white" }}
+        onMouseEnter={() => setHovering(true)}
       >
         <div className="flex flex-col gap-0.5">
           <span className="font-bold text-md text-zinc-900 leading-tight">
@@ -144,10 +144,10 @@ export default function ProjectSection({
         {hovering && !adding && availableTeammates.length > 0 && (
           <button
             onClick={() => setAdding(true)}
-            className="absolute bottom-1 right-2 text-zinc-300 hover:text-violet-600 transition-colors"
+            className="btn-chunky btn-chunky-muted absolute bottom-1 right-2 rounded"
             title="Add teammate"
           >
-            <UserRoundPlus size={18} />
+            <Plus size={12} />
           </button>
         )}
       </div>
@@ -172,11 +172,12 @@ export default function ProjectSection({
                   borderBottomStyle: isUnsaved ? "dashed" : "solid",
                   borderBottomColor: isUnsaved ? "rgb(106, 106, 106)" : "#e4e4e7",
                 }}
+                onMouseEnter={() => setHovering(true)}
               >
                 {teammate.name}
               </div>
 
-              <div className="flex" style={{ backgroundColor: bgColor }}>
+              <div className="flex" style={{ backgroundColor: bgColor }} onMouseEnter={() => setHovering(false)}>
                 {weekStarts.map((ws) => {
                   const key = `${project.id}|${teammate.id}|${ws}`;
                   const alloc = allocationMap.get(key);
@@ -223,7 +224,7 @@ export default function ProjectSection({
             </div>
 
             {/* Empty cells for the new row */}
-            <div className="flex" style={{ backgroundColor: "rgb(248, 248, 248)" }}>
+            <div className="flex" style={{ backgroundColor: "rgb(248, 248, 248)" }} onMouseEnter={() => setHovering(false)}>
               {weekStarts.map((ws) => (
                 <div
                   key={ws}
