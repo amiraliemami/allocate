@@ -131,7 +131,7 @@ export default function TeammateSection({
         {hovering && !adding && !totalsOnly && availableProjects.length > 0 && (
           <button
             onClick={() => setAdding(true)}
-            className="btn-chunky btn-chunky-muted absolute bottom-1 right-2 rounded"
+            className="btn-chunky btn-chunky-muted absolute bottom-9 right-2 rounded"
             title="Add project"
           >
             <Plus size={12} />

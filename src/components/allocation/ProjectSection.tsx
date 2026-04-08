@@ -144,7 +144,7 @@ export default function ProjectSection({
         {hovering && !adding && availableTeammates.length > 0 && (
           <button
             onClick={() => setAdding(true)}
-            className="btn-chunky btn-chunky-muted absolute bottom-1 right-2 rounded"
+            className="btn-chunky btn-chunky-muted absolute bottom-2 right-2 rounded"
             title="Add teammate"
           >
             <Plus size={12} />
