@@ -267,12 +267,19 @@ export default function DateHeader({
                 {month.weeks.map((ws, wi) => (
                   <div
                     key={ws}
-                    className={`text-sm text-center py-1.5 box-border border-b-2 border-b-zinc-400 ${
+                    className={`text-sm text-center py-1.5 box-border border-b-2 border-b-zinc-400 relative ${
                       wi === 0 ? "border-l-2 border-l-zinc-300" : "border-l border-l-zinc-200"
-                    } ${isCurrentWeek(ws) ? "bg-amber-200 font-bold text-amber-900" : "text-zinc-700"}`}
+                    } text-zinc-700`}
                     style={{ width: CELL_WIDTH }}
                   >
-                    {formatWeekLabel(ws)}
+                    {isCurrentWeek(ws) && (
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="w-6 h-6 rounded-full bg-purple-800" />
+                      </span>
+                    )}
+                    <span className={`relative ${isCurrentWeek(ws) ? "text-white font-bold" : ""}`}>
+                      {formatWeekLabel(ws)}
+                    </span>
                   </div>
                 ))}
               </div>
