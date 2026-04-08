@@ -7,10 +7,11 @@ const CELL_WIDTH = 56;
 interface Props {
   fraction: number | undefined;
   isMonthStart?: boolean;
+  unsaved?: boolean;
   onEdit: (value: number | null) => void;
 }
 
-function AllocationCellInner({ fraction, isMonthStart, onEdit }: Props) {
+function AllocationCellInner({ fraction, isMonthStart, unsaved, onEdit }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
@@ -59,8 +60,14 @@ function AllocationCellInner({ fraction, isMonthStart, onEdit }: Props) {
 
   return (
     <div
-      style={{ width: CELL_WIDTH, minWidth: CELL_WIDTH }}
-      className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full border-b border-b-zinc-200 box-border ${borderClass}`}
+      style={{
+        width: CELL_WIDTH,
+        minWidth: CELL_WIDTH,
+        borderBottomWidth: unsaved ? 2 : 1,
+        borderBottomStyle: unsaved ? "dashed" : "solid",
+        borderBottomColor: unsaved ? "#18181b" : "#e4e4e7",
+      }}
+      className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full box-border ${borderClass}`}
       onClick={() => {
         setDraft(displayValue);
         setEditing(true);
