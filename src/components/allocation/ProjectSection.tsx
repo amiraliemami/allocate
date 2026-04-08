@@ -161,17 +161,16 @@ export default function ProjectSection({
           return (
             <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
               <div
-                className={`sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${
-                  isUnsaved ? "italic" : ""
-                }`}
+                className={`sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${isUnsaved ? "italic" : ""
+                  }`}
                 style={{
                   left: PROJECT_INFO_WIDTH,
                   width: TEAMMATE_NAME_WIDTH,
                   minWidth: TEAMMATE_NAME_WIDTH,
-                  background: "white",
+                  background: isUnsaved ? "rgb(229, 229, 229)" : "white",
                   borderBottomWidth: isUnsaved ? 2 : 1,
                   borderBottomStyle: isUnsaved ? "dashed" : "solid",
-                  borderBottomColor: isUnsaved ? "#18181b" : "#e4e4e7",
+                  borderBottomColor: isUnsaved ? "rgb(106, 106, 106)" : "#e4e4e7",
                 }}
               >
                 {teammate.name}
@@ -224,13 +223,12 @@ export default function ProjectSection({
             </div>
 
             {/* Empty cells for the new row */}
-            <div className="flex" style={{ backgroundColor: bgColor }}>
+            <div className="flex" style={{ backgroundColor: "rgb(248, 248, 248)" }}>
               {weekStarts.map((ws) => (
                 <div
                   key={ws}
-                  className={`box-border border-b border-b-zinc-200 ${
-                    monthBoundaries.has(ws) ? "border-l-2 border-l-zinc-300" : "border-l border-l-zinc-200"
-                  }`}
+                  className={`box-border border-b border-b-zinc-200 ${monthBoundaries.has(ws) ? "border-l-2 border-l-zinc-300" : "border-l border-l-zinc-200"
+                    }`}
                   style={{ width: 56, minWidth: 56, height: ROW_HEIGHT }}
                 />
               ))}
