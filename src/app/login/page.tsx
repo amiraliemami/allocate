@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import LoginBackground from "@/components/LoginBackground";
 
 export default function LoginPage() {
   const [hovering, setHovering] = useState(false);
@@ -45,9 +46,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
+    <div className="relative flex min-h-screen items-center justify-center bg-white overflow-hidden">
+      <LoginBackground />
       <div
-        className="relative animate-spin [animation-duration:5s] "
+        className="relative z-10 animate-spin [animation-duration:5s] "
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => {
           if (!password) setHovering(false);
