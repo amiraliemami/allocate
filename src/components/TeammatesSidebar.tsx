@@ -19,9 +19,10 @@ interface Props {
   onOpen: () => void;
   teammates: Teammate[];
   setTeammates: Dispatch<SetStateAction<Teammate[]>>;
+  disabled?: boolean;
 }
 
-export default function TeammatesSidebar({ open, onClose, onOpen, teammates, setTeammates }: Props) {
+export default function TeammatesSidebar({ open, onClose, onOpen, teammates, setTeammates, disabled }: Props) {
   const [closing, setClosing] = useState(false);
   const [filtersActive, setFiltersActive] = useState(false);
   const [clearFilters, setClearFilters] = useState<(() => void) | null>(null);
@@ -97,7 +98,8 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
         <div className="fixed -right-0.5 top-2/3 -translate-y-1/2 z-[51]">
           <button
             onClick={onOpen}
-            className="sidebar-tab sidebar-tab-right group bg-emerald-200 text-emerald-700"
+            disabled={disabled}
+            className={`sidebar-tab sidebar-tab-right group bg-emerald-200 text-emerald-700 ${disabled ? "opacity-30 pointer-events-none" : ""}`}
           >
             <span className="px-1.5">
               {"\u2039"}

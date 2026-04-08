@@ -108,8 +108,8 @@ export default function Home() {
           <button
             onClick={() => setActiveView("project")}
             className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg shrink-0 ${activeView === "project"
-                ? "btn-chunky-pressed bg-purple-800 text-zinc-100"
-                : "bg-white text-zinc-800"
+              ? "btn-chunky-pressed bg-purple-800 text-zinc-100"
+              : "bg-white text-zinc-800"
               }`}
           >
             PROJECT VIEW
@@ -130,8 +130,8 @@ export default function Home() {
           <button
             onClick={() => setActiveView("teammate")}
             className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg shrink-0 ${activeView === "teammate"
-                ? "btn-chunky-pressed bg-emerald-800 text-zinc-100"
-                : "bg-white text-zinc-800"
+              ? "btn-chunky-pressed bg-emerald-800 text-zinc-100"
+              : "bg-white text-zinc-800"
               }`}
           >
             TEAM VIEW
@@ -146,7 +146,20 @@ export default function Home() {
       <main className="flex-1 overflow-hidden">
         {dataLoading ? (
           <div className="flex h-full items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-3 border-zinc-200 border-t-zinc-900" />
+            <div className="wavy-loader flex gap-1.5 text-2xl font-black">
+              {["L", "O", "A", "D", "I", "N", "G", "L", "O", "A", "D", "I", "N", "G", "L", "O", "A", "D", "I", "N", "G",
+              ].map((ch, i) => (
+                <span
+                  key={i}
+                  style={{
+                    animationDelay: `${i * 0.1}s`,
+                    color: ["#7e22ce", "#7e22ce", "#1a1a1a", "#1a1a1a", "#1a1a1a", "#059669", "#059669"][i],
+                  }}
+                >
+                  {ch}
+                </span>
+              ))}
+            </div>
           </div>
         ) : (
           <AllocationView
@@ -175,6 +188,7 @@ export default function Home() {
         projects={projects}
         setProjects={setProjects}
         teammates={teammates}
+        disabled={dataLoading}
       />
 
       {/* Teammates sidebar + handle (right) */}
@@ -184,6 +198,7 @@ export default function Home() {
         onOpen={() => { setProjectsOpen(false); setTeammatesOpen(true); }}
         teammates={teammates}
         setTeammates={setTeammates}
+        disabled={dataLoading}
       />
     </div>
   );
