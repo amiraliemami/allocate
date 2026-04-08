@@ -13,7 +13,8 @@
 
 ## To Do
 
-- Team view
+- Team view: "Totals only" and "Team" and "Level" filter chips
+- hover-open total allocations view for quick reference
 - shortcuts for copy pasting easily
 - alerts
 - When entring allocations, tooltip should show remaining allocation e.g. "Remaining: 0.2" for each cell
