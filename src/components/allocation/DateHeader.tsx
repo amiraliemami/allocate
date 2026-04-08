@@ -210,7 +210,7 @@ export default function DateHeader({
         className="sticky left-0 z-30 bg-white shrink-0 border-b-2 border-r-2 px-2 pb-2"
         style={{ width: leftPanelWidth, minWidth: leftPanelWidth }}
       >
-        <div className="text-sm font-bold mb-1">controls controls controls controls con</div>
+        <div className="text-sm font-bold mb-1 overflow-hidden whitespace-nowrap">controls controls controls controls controls controls controls</div>
         <div className="flex flex-wrap gap-1">
           {/* Toggle: show project details (project view only) */}
           {activeView !== "teammate" && (
