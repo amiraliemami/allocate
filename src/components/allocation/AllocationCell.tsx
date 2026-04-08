@@ -14,6 +14,7 @@ interface Props {
 function AllocationCellInner({ fraction, isMonthStart, unsaved, onEdit }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [flashRed, setFlashRed] = useState(false);
 
   const displayValue =
     fraction != null
@@ -24,16 +25,23 @@ function AllocationCellInner({ fraction, isMonthStart, unsaved, onEdit }: Props)
     ? "border-l-2 border-l-zinc-300"
     : "border-l border-l-zinc-200";
 
-  const commit = () => {
+  const reject = () => {
     setEditing(false);
+    setFlashRed(false);
+    requestAnimationFrame(() => setFlashRed(true));
+  };
+
+  const commit = () => {
     const trimmed = draft.trim();
-    if (trimmed === "" || trimmed === "0") {
+    if (trimmed === "") {
+      setEditing(false);
       if (fraction != null) onEdit(null);
       return;
     }
     const parsed = parseFloat(trimmed);
-    if (isNaN(parsed) || parsed < 0) return;
+    if (isNaN(parsed) || parsed <= 0) return reject();
     const intVal = Math.round(parsed * 100);
+    setEditing(false);
     if (intVal !== fraction) onEdit(intVal);
   };
 
@@ -64,7 +72,9 @@ function AllocationCellInner({ fraction, isMonthStart, unsaved, onEdit }: Props)
         width: CELL_WIDTH,
         minWidth: CELL_WIDTH,
         backgroundColor: unsaved ? "rgb(248, 248, 248)" : "transparent",
+        animation: flashRed ? "cellFlashRed 0.4s ease-out" : undefined,
       }}
+      onAnimationEnd={() => setFlashRed(false)}
       className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full border-b-1 border-zinc-200 box-border ${borderClass}`}
       onClick={() => {
         setDraft(displayValue);
