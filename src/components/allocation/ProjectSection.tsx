@@ -25,6 +25,7 @@ interface Props {
   teammates: Teammate[];
   weekStarts: string[];
   allocationMap: Map<string, Allocation>;
+  teammateTotals: Map<string, number>;
   bgColor: string;
   monthBoundaries: Set<string>;
   teammateStatusFilter?: Set<string>;
@@ -46,6 +47,7 @@ export default function ProjectSection({
   teammates,
   weekStarts,
   allocationMap,
+  teammateTotals,
   bgColor,
   monthBoundaries,
   teammateStatusFilter,
@@ -185,6 +187,7 @@ export default function ProjectSection({
                     <AllocationCell
                       key={ws}
                       fraction={alloc?.fraction}
+                      teammateTotal={teammateTotals.get(`${teammate.id}|${ws}`)}
                       isMonthStart={monthBoundaries.has(ws)}
                       unsaved={isUnsaved}
                       onEdit={(val) =>

@@ -74,6 +74,14 @@ html, body {
   100% { background: transparent; }
 }
 
+/* Comic thought bubble tooltip */
+.tooltip-bubble {
+  background: white;
+  border: 2px solid var(--bubble-color);
+  border-radius: 6px;
+  color: var(--bubble-color);
+}
+
 @keyframes ticker {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }

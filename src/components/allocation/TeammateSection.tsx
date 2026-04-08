@@ -173,6 +173,7 @@ export default function TeammateSection({
                     <AllocationCell
                       key={ws}
                       fraction={alloc?.fraction}
+                      teammateTotal={teammateTotals.get(`${teammate.id}|${ws}`)}
                       isMonthStart={monthBoundaries.has(ws)}
                       unsaved={isUnsaved}
                       onEdit={(val) =>

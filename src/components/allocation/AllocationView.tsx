@@ -196,6 +196,7 @@ export default function AllocationView({
                 teammates={teammates}
                 weekStarts={weekStarts}
                 allocationMap={allocationMap}
+                teammateTotals={teammateTotals}
                 bgColor={getProjectBg(idx)}
                 monthBoundaries={monthBoundaries}
                 teammateStatusFilter={filters.teammateStatus}

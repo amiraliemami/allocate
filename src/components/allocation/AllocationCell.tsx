@@ -6,12 +6,13 @@ const CELL_WIDTH = 56;
 
 interface Props {
   fraction: number | undefined;
+  teammateTotal?: number;
   isMonthStart?: boolean;
   unsaved?: boolean;
   onEdit: (value: number | null) => void;
 }
 
-function AllocationCellInner({ fraction, isMonthStart, unsaved, onEdit }: Props) {
+function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, onEdit }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [flashRed, setFlashRed] = useState(false);
@@ -46,13 +47,23 @@ function AllocationCellInner({ fraction, isMonthStart, unsaved, onEdit }: Props)
   };
 
   if (editing) {
+    const remaining = (100 - (teammateTotal ?? 0)) / 100;
+    const remainingText = `${remaining.toFixed(1)} remaining`;
+    const isOver = remaining <= 0;
+
     return (
       <div
         style={{ width: CELL_WIDTH, minWidth: CELL_WIDTH }}
-        className={`flex items-center justify-center h-full box-border ${borderClass}`}
+        className={`relative flex items-center justify-center h-full box-border ${borderClass}`}
       >
+        <div
+          className="tooltip-bubble absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-0.5 text-xs font-bold whitespace-nowrap z-50"
+          style={{ "--bubble-color": isOver ? "#991b1b" : "#166534" } as React.CSSProperties}
+        >
+          {remainingText}
+        </div>
         <input
-          className="w-full h-full text-center text-sm bg-white outline-none border-2 border-violet-400 rounded px-0.5"
+          className="w-full h-full text-center text-sm bg-white outline-none border-2 border-zinc-900 rounded px-0.5"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
