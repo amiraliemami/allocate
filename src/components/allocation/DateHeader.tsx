@@ -18,22 +18,24 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 
 // ─── Chip helper ─────────────────────────────────────────
 // Shared base classes for all filter chips
-const CHIP_BASE = "chip-filter border-2 border-zinc-900 flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md select-none";
+const CHIP_BASE = "chip-filter border-2 border-zinc-900 flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md select-none";
 
 function Chip({
   active,
   activeColor,
+  activeTextColor,
   onClick,
   children,
 }: {
   active: boolean;
   activeColor: string;
+  activeTextColor?: string;
   onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div
-      className={`${CHIP_BASE} ${active ? `chip-filter-active ${activeColor}` : "bg-white"}`}
+      className={`${CHIP_BASE} ${active ? `chip-filter-active ${activeColor} ${activeTextColor ?? "text-zinc-800"}` : "bg-white text-zinc-800"}`}
       onClick={onClick}
     >
       {children}
@@ -64,6 +66,7 @@ type FilterDef = {
   options: { value: string; label: string }[];
   searchable?: boolean;
   activeColor?: string;
+  activeTextColor?: string;
 };
 
 interface Props {
@@ -159,15 +162,15 @@ export default function DateHeader({
         <div className="text-sm font-bold mb-1">controls controls controls controls con</div>
         <div className="flex flex-wrap gap-1">
           {/* Toggle: show project details */}
-          <Chip active={showProjectDetails} activeColor="bg-blue-100" onClick={onToggleProjectDetails}>
+          <Chip active={showProjectDetails} activeColor="bg-blue-100" activeTextColor="text-blue-800" onClick={onToggleProjectDetails}>
             Show details
             {showProjectDetails && <ClearButton onClick={onToggleProjectDetails} />}
           </Chip>
 
           {/* Search: project name */}
           {searchActive ? (
-            <div className={`${CHIP_BASE} chip-filter-active bg-orange-100`}>
-              <Search size={12} />
+            <div className={`${CHIP_BASE} chip-filter-active bg-orange-100 text-orange-900`}>
+              <Search size={12} strokeWidth={4} />
               {searchFocused ? (
                 <input
                   className="bg-transparent outline-none w-20 text-xs"
@@ -190,8 +193,8 @@ export default function DateHeader({
               <ClearButton onClick={clearSearch} />
             </div>
           ) : (
-            <div className={`${CHIP_BASE} bg-white`} onClick={() => { setOpenFilter("projectName"); setSearchFocused(true); }}>
-              <Search size={12} />
+            <div className={`${CHIP_BASE} bg-white text-zinc-800`} onClick={() => { setOpenFilter("projectName"); setSearchFocused(true); }}>
+              <Search size={12} strokeWidth={4} />
             </div>
           )}
 
@@ -204,6 +207,7 @@ export default function DateHeader({
                 <Chip
                   active={!!label}
                   activeColor={def.activeColor ?? "bg-purple-100"}
+                  activeTextColor={def.activeTextColor ?? "text-purple-800"}
                   onClick={() => setOpenFilter(isOpen ? null : def.key)}
                 >
                   {label ? (
@@ -233,6 +237,7 @@ export default function DateHeader({
           <Chip
             active={filters.teammateStatus.size === 0}
             activeColor="bg-green-100"
+            activeTextColor="text-green-800"
             onClick={() => onFilterChange(
               "teammateStatus",
               filters.teammateStatus.size === 0 ? new Set(["Active"]) : new Set()
