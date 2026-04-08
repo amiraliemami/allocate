@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MonthGroup } from "@/lib/dateUtils";
+import { Search } from "lucide-react";
+import type { MonthGroup } from "@/lib/dateUtils";
 import { isCurrentWeek, formatWeekLabel } from "@/lib/dateUtils";
 import { PROJECT_INFO_WIDTH, TEAMMATE_NAME_WIDTH } from "./ProjectSection";
 import type { AllocationFilters } from "./AllocationView";
@@ -13,35 +14,69 @@ import MultiSelectFilter from "@/components/filters/MultiSelectFilter";
 
 const LEFT_PANEL_WIDTH = PROJECT_INFO_WIDTH + TEAMMATE_NAME_WIDTH;
 const CELL_WIDTH = 56;
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// ─── Chip helper ─────────────────────────────────────────
+// Shared base classes for all filter chips
+const CHIP_BASE = "chip-filter flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md select-none";
+
+function Chip({
+  active,
+  activeColor,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  activeColor: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`${CHIP_BASE} ${active ? `chip-filter-active ${activeColor}` : "bg-white"}`}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ClearButton({ onClick }: { onClick: () => void }) {
+  return (
+    <span
+      className="text-zinc-400 hover:text-red-900 ml-0.5 cursor-pointer"
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+    >
+      ×
+    </span>
+  );
+}
+
+// ─── Types ───────────────────────────────────────────────
+
+type SetFilterKey = {
+  [K in keyof AllocationFilters]: AllocationFilters[K] extends Set<string> ? K : never;
+}[keyof AllocationFilters];
+
+type FilterDef = {
+  key: SetFilterKey;
+  label: string;
+  options: { value: string; label: string }[];
+  searchable?: boolean;
+  activeColor?: string;
+};
 
 interface Props {
   monthGroups: MonthGroup[];
   filters: AllocationFilters;
-  onFilterChange: <K extends keyof AllocationFilters>(
-    key: K,
-    value: AllocationFilters[K]
-  ) => void;
+  onFilterChange: <K extends keyof AllocationFilters>(key: K, value: AllocationFilters[K]) => void;
   projects: Project[];
   teammates: Teammate[];
   showProjectDetails: boolean;
   onToggleProjectDetails: () => void;
 }
 
-function formatMonthLabel(month: MonthGroup): string {
-  const names = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  if (month.month === 0) return `${names[month.month]} ${month.year}`;
-  return names[month.month];
-}
-
-type FilterDef = {
-  key: keyof AllocationFilters;
-  label: string;
-  options: { value: string; label: string }[];
-  searchable?: boolean;
-};
+// ─── Component ───────────────────────────────────────────
 
 export default function DateHeader({
   monthGroups,
@@ -53,7 +88,9 @@ export default function DateHeader({
   onToggleProjectDetails,
 }: Props) {
   const [openFilter, setOpenFilter] = useState<string | null>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
 
+  // ─── Filter definitions ─────────────────────────────────
   const filterDefs: FilterDef[] = [
     {
       key: "projectStatus",
@@ -86,72 +123,100 @@ export default function DateHeader({
     const selected = filters[def.key];
     if (selected.size === 0) return null;
     if (selected.size === 1) {
-      const match = def.options.find((o) => selected.has(o.value));
-      return match?.label ?? "1";
+      return def.options.find((o) => selected.has(o.value))?.label ?? "1";
     }
     return `${selected.size}`;
   }
 
+  // ─── Search helpers ─────────────────────────────────────
+  const searchActive = openFilter === "projectName" || !!filters.projectName;
+
+  const closeSearch = () => {
+    setSearchFocused(false);
+    if (!filters.projectName.trim()) {
+      onFilterChange("projectName", "");
+      setOpenFilter(null);
+    }
+  };
+
+  const clearSearch = () => {
+    onFilterChange("projectName", "");
+    setOpenFilter(null);
+    setSearchFocused(false);
+  };
+
+  // ─── Date helpers ───────────────────────────────────────
+  const totalDateWidth = monthGroups.reduce((sum, m) => sum + m.weeks.length * CELL_WIDTH, 0);
+  const totalWeeks = monthGroups.reduce((sum, m) => sum + m.weeks.length, 0);
+
   return (
     <div className="sticky top-0 z-20 flex items-stretch bg-white">
-      {/* Corner — filter chips */}
+      {/* Corner — filter controls */}
       <div
-        className="sticky left-0 z-30 bg-white shrink-0 border-b-2 border-r-2  px-2 pb-2"
+        className="sticky left-0 z-30 bg-white shrink-0 border-b-2 border-r-2 px-2 pb-2"
         style={{ width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH }}
       >
         <div className="text-sm font-bold mb-1">controls controls controls controls con</div>
-        <div className="flex flex-wrap gap-1.5">
-
-          {/* Show project details toggle */}
-          <div
-            className={`flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md cursor-pointer select-none transition-colors border-2 border-zinc-900 ${
-              showProjectDetails
-                ? "bg-purple-100"
-                : "bg-white hover:bg-purple-100"
-            }`}
-            style={{ boxShadow: "1px 2px 0 #1a1a1a" }}
-            onClick={onToggleProjectDetails}
-          >
+        <div className="flex flex-wrap gap-1">
+          {/* Toggle: show project details */}
+          <Chip active={showProjectDetails} activeColor="bg-blue-100" onClick={onToggleProjectDetails}>
             Show details
-            {showProjectDetails && (
-              <span className="text-zinc-400 hover:text-red-900 ml-0.5">×</span>
-            )}
-          </div>
+            {showProjectDetails && <ClearButton onClick={onToggleProjectDetails} />}
+          </Chip>
+
+          {/* Search: project name */}
+          {searchActive ? (
+            <div className={`${CHIP_BASE} chip-filter-active bg-orange-100`}>
+              <Search size={12} />
+              {searchFocused ? (
+                <input
+                  className="bg-transparent outline-none w-20 text-xs"
+                  value={filters.projectName}
+                  onChange={(e) => onFilterChange("projectName", e.target.value)}
+                  onBlur={closeSearch}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === "Escape") {
+                      closeSearch();
+                      (e.target as HTMLInputElement).blur();
+                    }
+                  }}
+                  autoFocus
+                />
+              ) : (
+                <span className="max-w-[80px] truncate cursor-pointer" onClick={() => setSearchFocused(true)}>
+                  {filters.projectName}
+                </span>
+              )}
+              <ClearButton onClick={clearSearch} />
+            </div>
+          ) : (
+            <div className={`${CHIP_BASE} bg-white`} onClick={() => { setOpenFilter("projectName"); setSearchFocused(true); }}>
+              <Search size={12} />
+            </div>
+          )}
+
+          {/* Multi-select filters */}
           {filterDefs.map((def) => {
-            const activeLabel = getChipLabel(def);
+            const label = getChipLabel(def);
             const isOpen = openFilter === def.key;
             return (
               <div key={def.key} className="relative">
-                <div
-                  className={`flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md cursor-pointer select-none transition-colors border-2 border-zinc-900 ${activeLabel
-                      ? "bg-purple-100"
-                      : "bg-white hover:bg-purple-100"
-                    }`}
-                  style={{ boxShadow: "1px 2px 0 #1a1a1a" }}
+                <Chip
+                  active={!!label}
+                  activeColor={def.activeColor ?? "bg-purple-100"}
                   onClick={() => setOpenFilter(isOpen ? null : def.key)}
                 >
-                  {activeLabel ? (
+                  {label ? (
                     <>
-                      <span className="max-w-[120px] truncate">{def.label}: {activeLabel}</span>
-                      <button
-                        className="hover:text-red-900 ml-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onFilterChange(def.key, new Set<string>());
-                        }}
-                      >
-                        ×
-                      </button>
+                      <span className="max-w-[120px] truncate">{def.label}: {label}</span>
+                      <ClearButton onClick={() => onFilterChange(def.key, new Set<string>())} />
                     </>
                   ) : (
                     def.label
                   )}
-                </div>
+                </Chip>
                 {isOpen && (
-                  <ColumnFilterPopover
-                    onClose={() => setOpenFilter(null)}
-                    align="left"
-                  >
+                  <ColumnFilterPopover onClose={() => setOpenFilter(null)} align="left">
                     <MultiSelectFilter
                       options={def.options}
                       selected={filters[def.key]}
@@ -164,66 +229,55 @@ export default function DateHeader({
             );
           })}
 
-          {/* Show Alumni toggle */}
-          <div
-            className={`flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md cursor-pointer select-none transition-colors border-2 border-zinc-900 ${
-              filters.teammateStatus.size === 0
-                ? "bg-purple-100"
-                : "bg-white hover:bg-purple-100"
-            }`}
-            style={{ boxShadow: "1px 2px 0 #1a1a1a" }}
-            onClick={() => {
-              if (filters.teammateStatus.size === 0) {
-                onFilterChange("teammateStatus", new Set(["Active"]));
-              } else {
-                onFilterChange("teammateStatus", new Set());
-              }
-            }}
+          {/* Toggle: show alumni */}
+          <Chip
+            active={filters.teammateStatus.size === 0}
+            activeColor="bg-green-100"
+            onClick={() => onFilterChange(
+              "teammateStatus",
+              filters.teammateStatus.size === 0 ? new Set(["Active"]) : new Set()
+            )}
           >
             Alumni
             {filters.teammateStatus.size === 0 && (
-              <span className="text-zinc-400 hover:text-red-900 ml-0.5">×</span>
+              <ClearButton onClick={() => onFilterChange("teammateStatus", new Set(["Active"]))} />
             )}
-          </div>
+          </Chip>
         </div>
       </div>
 
-      {/* Month groupings + week labels */}
+      {/* Date columns */}
       <div className="flex flex-col justify-end">
         <div
           className="text-sm font-bold overflow-hidden whitespace-nowrap border-b border-zinc-200 px-2 pb-2"
-          style={{ width: monthGroups.reduce((sum, m) => sum + m.weeks.length * CELL_WIDTH, 0) }}
+          style={{ width: totalDateWidth }}
         >
-          {Array(Math.ceil(monthGroups.reduce((sum, m) => sum + m.weeks.length, 0) * 1.33)).fill("dates").join(" ")}
+          {Array(Math.ceil(totalWeeks * 1.33)).fill("dates").join(" ")}
         </div>
         <div className="flex">
-        {monthGroups.map((month) => (
-          <div key={month.label}>
-            <div
-              className="text-sm font-bold text-left px-2 py-1.5 border-l-2 border-zinc-300"
-              style={{ width: month.weeks.length * CELL_WIDTH }}
-            >
-              {formatMonthLabel(month)}
+          {monthGroups.map((month) => (
+            <div key={month.label}>
+              <div
+                className="text-sm font-bold text-left px-2 py-1.5 border-l-2 border-zinc-300"
+                style={{ width: month.weeks.length * CELL_WIDTH }}
+              >
+                {month.month === 0 ? `${MONTH_NAMES[0]} ${month.year}` : MONTH_NAMES[month.month]}
+              </div>
+              <div className="flex">
+                {month.weeks.map((ws, wi) => (
+                  <div
+                    key={ws}
+                    className={`text-sm text-center py-1.5 box-border border-b-2 border-b-zinc-400 ${
+                      wi === 0 ? "border-l-2 border-l-zinc-300" : "border-l border-l-zinc-200"
+                    } ${isCurrentWeek(ws) ? "bg-amber-200 font-bold text-amber-900" : "text-zinc-700"}`}
+                    style={{ width: CELL_WIDTH }}
+                  >
+                    {formatWeekLabel(ws)}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex">
-              {month.weeks.map((ws, wi) => (
-                <div
-                  key={ws}
-                  className={`text-sm text-center py-1.5 box-border border-b-2 border-b-zinc-400 ${wi === 0
-                      ? "border-l-2 border-l-zinc-300"
-                      : "border-l border-l-zinc-200"
-                    } ${isCurrentWeek(ws)
-                      ? "bg-amber-200 font-bold text-amber-900"
-                      : "text-zinc-700"
-                    }`}
-                  style={{ width: CELL_WIDTH }}
-                >
-                  {formatWeekLabel(ws)}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+          ))}
         </div>
       </div>
     </div>

@@ -146,6 +146,29 @@ html, body {
   transform: translate(3px, 3px);
 }
 
+/* Filter chip */
+.chip-filter {
+  border: 2px solid #1a1a1a;
+  box-shadow: 1px 2px 0 #1a1a1a;
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.chip-filter:hover {
+  box-shadow: 0.5px 1px 0 #1a1a1a;
+  transform: translate(0.5px, 1px);
+}
+
+.chip-filter-active {
+  box-shadow: 0 1px 0 #1a1a1a;
+  transform: translate(1px, 1px);
+}
+
+.chip-filter-active:hover {
+  box-shadow: 0 1px 0 #1a1a1a;
+  transform: translate(1px, 1px);
+}
+
 /* Inline editable cell */
 .cell-editable {
   cursor: text;

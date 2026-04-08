@@ -15,6 +15,7 @@ const CELL_WIDTH = 56;
 export type AllocationFilters = {
   projectStatus: Set<string>;
   projectLeadId: Set<string>;
+  projectName: string;
   teammateStatus: Set<string>;
   teammateId: Set<string>;
 };
@@ -22,7 +23,8 @@ export type AllocationFilters = {
 const DEFAULT_FILTERS: AllocationFilters = {
   projectStatus: new Set(["Active"]),
   projectLeadId: new Set(),
-  teammateStatus: new Set(["Active"]), // hide alumni by default
+  projectName: "",
+  teammateStatus: new Set(["Active"]),
   teammateId: new Set(),
 };
 
@@ -121,6 +123,7 @@ export default function AllocationView({
       if (!projectsWithAllocations.has(p.id)) return false;
       if (filters.projectStatus.size > 0 && !filters.projectStatus.has(p.status)) return false;
       if (filters.projectLeadId.size > 0 && !filters.projectLeadId.has(p.leadId ?? "")) return false;
+      if (filters.projectName && !p.name.toLowerCase().includes(filters.projectName.toLowerCase())) return false;
       return true;
     });
   }, [projects, allocations, filters]);
