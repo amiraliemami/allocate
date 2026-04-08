@@ -26,9 +26,10 @@ interface Props {
   projects: Project[];
   setProjects: Dispatch<SetStateAction<Project[]>>;
   teammates: Teammate[];
+  disabled?: boolean;
 }
 
-export default function ProjectsSidebar({ open, onClose, onOpen, projects, setProjects, teammates }: Props) {
+export default function ProjectsSidebar({ open, onClose, onOpen, projects, setProjects, teammates, disabled }: Props) {
   const [closing, setClosing] = useState(false);
   const [filtersActive, setFiltersActive] = useState(false);
   const [clearFilters, setClearFilters] = useState<(() => void) | null>(null);
@@ -107,7 +108,8 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
         <div className="fixed -left-0.5 top-1/3 -translate-y-1/2 z-[51]">
           <button
             onClick={onOpen}
-            className="sidebar-tab group bg-violet-100 text-violet-700"
+            disabled={disabled}
+            className={`sidebar-tab group bg-violet-100 text-violet-700 ${disabled ? "opacity-30 pointer-events-none" : ""}`}
           >
             <span className="px-2.5 transition-all w-0 overflow-hidden whitespace-nowrap group-hover:w-18 group-hover:px-2">
               Projects

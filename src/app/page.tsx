@@ -18,6 +18,7 @@ export default function Home() {
   const [allocations, setAllocations] = useState<Allocation[]>([]);
   const [weekStarts, setWeekStarts] = useState<string[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const router = useRouter();
 
   const handleCellEdit = async (
@@ -43,7 +44,7 @@ export default function Home() {
       });
     } else if (fraction != null) {
       // Create
-      const tempId = `temp-${Date.now()}`;
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const newAlloc: Allocation = {
         id: tempId,
         projectId,
@@ -74,21 +75,25 @@ export default function Home() {
 
   const fetchAll = useCallback(async () => {
     setDataLoading(true);
+    setLoadError(false);
     try {
       const [projRes, teamRes, allocRes] = await Promise.all([
         fetch("/api/projects"),
         fetch("/api/teammates"),
         fetch("/api/allocations"),
       ]);
-      if (projRes.ok) setProjects(await projRes.json());
-      if (teamRes.ok) setTeammates(await teamRes.json());
-      if (allocRes.ok) {
-        const data = await allocRes.json();
-        setAllocations(data.allocations);
-        setWeekStarts(data.weekStarts);
+      if (!projRes.ok || !teamRes.ok || !allocRes.ok) {
+        setLoadError(true);
+        setDataLoading(false);
+        return;
       }
+      setProjects(await projRes.json());
+      setTeammates(await teamRes.json());
+      const data = await allocRes.json();
+      setAllocations(data.allocations);
+      setWeekStarts(data.weekStarts);
     } catch {
-      // Network error — data stays empty
+      setLoadError(true);
     }
     setDataLoading(false);
   }, []);
@@ -100,47 +105,70 @@ export default function Home() {
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-white">
       {/* Top bar */}
-      <header className="flex items-end justify-center gap-12 bg-white px-12 py-3 mt-4 mb-8">
-        <button
-          onClick={() => setActiveView("project")}
-          className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg ${
-            activeView === "project"
+      <header className="flex items-center justify-center gap-8 bg-white mt-14 mb-10">
+        <svg className="flex-1 h-3" preserveAspectRatio="none" viewBox="0 0 100 10">
+          <path d="M0 5 Q8.33 0 16.67 5 T33.33 5 T50 5 T66.67 5 T83.33 5 T100 5" fill="none" stroke="#1a1a1a" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+        </svg>
+        <div className="flex items-center justify-center gap-10 bg-white">
+          <button
+            onClick={() => setActiveView("project")}
+            className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg shrink-0 ${activeView === "project"
               ? "btn-chunky-pressed bg-purple-800 text-zinc-100"
               : "bg-white text-zinc-800"
-          }`}
-        >
-          PROJECT VIEW
-        </button>
+              }`}
+          >
+            PROJECT VIEW
+          </button>
 
-        <button
-          onClick={handleSignOut}
-          className="group relative text-xl font-bold tracking-tight text-zinc-900 hover:cursor-pointer"
-        >
-          <span className="inline-block transition-all duration-300 group-hover:scale-0 group-hover:opacity-0">
-            A L L O C A T E
-          </span>
-          <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 group-hover:animate-[bounce_0.3s_infinite]">
-            B Y E B Y E ?
-          </span>
-        </button>
+          <button
+            onClick={handleSignOut}
+            className="group relative text-xl font-bold tracking-tight text-zinc-900 hover:cursor-pointer shrink-0"
+          >
+            <span className="inline-block transition-all duration-300 group-hover:scale-0 group-hover:opacity-0">
+              A L L O C A T E
+            </span>
+            <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 group-hover:animate-[bounce_0.3s_infinite]">
+              B Y E B Y E ?
+            </span>
+          </button>
 
-        <button
-          onClick={() => setActiveView("teammate")}
-          className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg ${
-            activeView === "teammate"
+          <button
+            onClick={() => setActiveView("teammate")}
+            className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg shrink-0 ${activeView === "teammate"
               ? "btn-chunky-pressed bg-emerald-800 text-zinc-100"
               : "bg-white text-zinc-800"
-          }`}
-        >
-          TEAM VIEW
-        </button>
+              }`}
+          >
+            TEAM VIEW
+          </button>
+        </div>
+        <svg className="flex-1 h-3" preserveAspectRatio="none" viewBox="0 0 100 10">
+          <path d="M0 5 Q8.33 0 16.67 5 T33.33 5 T50 5 T66.67 5 T83.33 5 T100 5" fill="none" stroke="#1a1a1a" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+        </svg>
       </header>
 
       {/* Main content */}
       <main className="flex-1 overflow-hidden">
-        {dataLoading ? (
+        {loadError ? (
           <div className="flex h-full items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-3 border-zinc-200 border-t-zinc-900" />
+            <span className="text-xl text-zinc-400 font-semibold">something went wrong... sorry :(</span>
+          </div>
+        ) : dataLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="wavy-loader flex gap-1.5 text-2xl font-black">
+              {["L", "O", "A", "D", "I", "N", "G", "L", "O", "A", "D", "I", "N", "G", "L", "O", "A", "D", "I", "N", "G",
+              ].map((ch, i) => (
+                <span
+                  key={i}
+                  style={{
+                    animationDelay: `${i * 0.1}s`,
+                    color: ["#7e22ce", "#7e22ce", "#1a1a1a", "#1a1a1a", "#1a1a1a", "#059669", "#059669"][i],
+                  }}
+                >
+                  {ch}
+                </span>
+              ))}
+            </div>
           </div>
         ) : (
           <AllocationView
@@ -155,9 +183,9 @@ export default function Home() {
       </main>
 
       {/* Ticker footer */}
-      <footer className="overflow-hidden border-y border-zinc-400 bg-white py-1 mb-2">
-        <div className="animate-[ticker_15s_linear_infinite] whitespace-nowrap text-sm font-mono text-zinc-400">
-          {Array(50).fill("v1.0").join(" ")}
+      <footer className="overflow-hidden text-center">
+        <div className="inline whitespace-nowrap text-xs font-mono text-zinc-400">
+          {Array(60).fill("v1.0").join(" ")}
         </div>
       </footer>
 
@@ -169,6 +197,7 @@ export default function Home() {
         projects={projects}
         setProjects={setProjects}
         teammates={teammates}
+        disabled={dataLoading || loadError}
       />
 
       {/* Teammates sidebar + handle (right) */}
@@ -178,6 +207,7 @@ export default function Home() {
         onOpen={() => { setProjectsOpen(false); setTeammatesOpen(true); }}
         teammates={teammates}
         setTeammates={setTeammates}
+        disabled={dataLoading || loadError}
       />
     </div>
   );
