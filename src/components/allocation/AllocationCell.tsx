@@ -63,11 +63,9 @@ function AllocationCellInner({ fraction, isMonthStart, unsaved, onEdit }: Props)
       style={{
         width: CELL_WIDTH,
         minWidth: CELL_WIDTH,
-        borderBottomWidth: unsaved ? 2 : 1,
-        borderBottomStyle: unsaved ? "dashed" : "solid",
-        borderBottomColor: unsaved ? "#18181b" : "#e4e4e7",
+        backgroundColor: unsaved ? "rgb(248, 248, 248)" : "transparent",
       }}
-      className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full box-border ${borderClass}`}
+      className={`flex items-center justify-center text-sm cursor-pointer select-none transition-colors hover:bg-violet-100/60 h-full border-b-1 border-zinc-200 box-border ${borderClass}`}
       onClick={() => {
         setDraft(displayValue);
         setEditing(true);

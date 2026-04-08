@@ -105,7 +105,7 @@ export default function Home() {
           onClick={() => setActiveView("project")}
           className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg ${
             activeView === "project"
-              ? "btn-chunky-pressed bg-zinc-900 text-zinc-100"
+              ? "btn-chunky-pressed bg-purple-800 text-zinc-100"
               : "bg-white text-zinc-800"
           }`}
         >
@@ -128,7 +128,7 @@ export default function Home() {
           onClick={() => setActiveView("teammate")}
           className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg ${
             activeView === "teammate"
-              ? "btn-chunky-pressed bg-zinc-900 text-zinc-100"
+              ? "btn-chunky-pressed bg-emerald-800 text-zinc-100"
               : "bg-white text-zinc-800"
           }`}
         >

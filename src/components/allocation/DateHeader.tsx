@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import type { MonthGroup } from "@/lib/dateUtils";
 import { isCurrentWeek, formatWeekLabel } from "@/lib/dateUtils";
 import { PROJECT_INFO_WIDTH, TEAMMATE_NAME_WIDTH } from "./ProjectSection";
+import { TEAMMATE_INFO_WIDTH, PROJECT_NAME_WIDTH } from "./TeammateSection";
 import type { AllocationFilters } from "./AllocationView";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
@@ -12,28 +13,29 @@ import { STATUS_ORDER } from "@/lib/statusColors";
 import ColumnFilterPopover from "@/components/ColumnFilterPopover";
 import MultiSelectFilter from "@/components/filters/MultiSelectFilter";
 
-const LEFT_PANEL_WIDTH = PROJECT_INFO_WIDTH + TEAMMATE_NAME_WIDTH;
 const CELL_WIDTH = 56;
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // ─── Chip helper ─────────────────────────────────────────
 // Shared base classes for all filter chips
-const CHIP_BASE = "chip-filter border-2 border-zinc-900 flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md select-none";
+const CHIP_BASE = "chip-filter border-2 border-zinc-900 flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md select-none";
 
 function Chip({
   active,
   activeColor,
+  activeTextColor,
   onClick,
   children,
 }: {
   active: boolean;
   activeColor: string;
+  activeTextColor?: string;
   onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div
-      className={`${CHIP_BASE} ${active ? `chip-filter-active ${activeColor}` : "bg-white"}`}
+      className={`${CHIP_BASE} ${active ? `chip-filter-active ${activeColor} ${activeTextColor ?? "text-zinc-800"}` : "bg-white text-zinc-800"}`}
       onClick={onClick}
     >
       {children}
@@ -64,6 +66,7 @@ type FilterDef = {
   options: { value: string; label: string }[];
   searchable?: boolean;
   activeColor?: string;
+  activeTextColor?: string;
 };
 
 interface Props {
@@ -74,6 +77,11 @@ interface Props {
   teammates: Teammate[];
   showProjectDetails: boolean;
   onToggleProjectDetails: () => void;
+  activeView?: "project" | "teammate";
+  showTotals?: boolean;
+  onToggleShowTotals?: () => void;
+  totalsOnly?: boolean;
+  onToggleTotalsOnly?: () => void;
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -86,38 +94,84 @@ export default function DateHeader({
   teammates,
   showProjectDetails,
   onToggleProjectDetails,
+  activeView = "project",
+  showTotals,
+  onToggleShowTotals,
+  totalsOnly,
+  onToggleTotalsOnly,
 }: Props) {
   const [openFilter, setOpenFilter] = useState<string | null>(null);
   const [searchFocused, setSearchFocused] = useState(false);
 
-  // ─── Filter definitions ─────────────────────────────────
-  const filterDefs: FilterDef[] = [
-    {
-      key: "projectStatus",
-      label: "Status",
-      options: STATUS_ORDER.map((s) => ({ value: s, label: s })),
-    },
-    {
-      key: "projectLeadId",
-      label: "Lead",
-      options: Object.values(
-        Object.fromEntries(
-          projects
-            .filter((p) => p.lead)
-            .map((p) => [p.lead!.id, { value: p.lead!.id, label: p.lead!.name }])
-        )
-      ).sort((a, b) => a.label.localeCompare(b.label)),
-      searchable: true,
-    },
-    {
-      key: "teammateId",
-      label: "Team",
-      options: teammates
-        .map((t) => ({ value: t.id, label: t.name }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-      searchable: true,
-    },
-  ];
+  const leftPanelWidth = activeView === "teammate"
+    ? TEAMMATE_INFO_WIDTH + PROJECT_NAME_WIDTH
+    : PROJECT_INFO_WIDTH + TEAMMATE_NAME_WIDTH;
+
+  // ─── Filter definitions (view-dependent) ─────────────────
+  const filterDefs: FilterDef[] = activeView === "teammate"
+    ? [
+        {
+          key: "projectStatus",
+          label: "Status",
+          options: STATUS_ORDER.map((s) => ({ value: s, label: s })),
+        },
+        {
+          key: "teammateId",
+          label: "Team",
+          options: teammates
+            .map((t) => ({ value: t.id, label: t.name }))
+            .sort((a, b) => a.label.localeCompare(b.label)),
+          searchable: true,
+        },
+        {
+          key: "teammateRole",
+          label: "Role",
+          options: [
+            { value: "DS", label: "DS" },
+            { value: "DE", label: "DE" },
+            { value: "FSE", label: "FSE" },
+            { value: "PM", label: "PM" },
+          ],
+        },
+        {
+          key: "teammateLevel",
+          label: "Level",
+          options: [
+            { value: "I", label: "I" },
+            { value: "II", label: "II" },
+            { value: "III", label: "III" },
+            { value: "IV", label: "IV" },
+            { value: "Chief", label: "Chief" },
+          ],
+        },
+      ]
+    : [
+        {
+          key: "projectStatus",
+          label: "Status",
+          options: STATUS_ORDER.map((s) => ({ value: s, label: s })),
+        },
+        {
+          key: "projectLeadId",
+          label: "Lead",
+          options: Object.values(
+            Object.fromEntries(
+              projects
+                .filter((p) => p.lead)
+                .map((p) => [p.lead!.id, { value: p.lead!.id, label: p.lead!.name }])
+            )
+          ).sort((a, b) => a.label.localeCompare(b.label)),
+          searchable: true,
+        },
+        {
+          key: "teammateId",
+          label: "Team",
+          options: teammates
+            .map((t) => ({ value: t.id, label: t.name }))
+            .sort((a, b) => a.label.localeCompare(b.label)),
+          searchable: true,
+        },
+      ];
 
   function getChipLabel(def: FilterDef): string | null {
     const selected = filters[def.key];
@@ -154,20 +208,22 @@ export default function DateHeader({
       {/* Corner — filter controls */}
       <div
         className="sticky left-0 z-30 bg-white shrink-0 border-b-2 border-r-2 px-2 pb-2"
-        style={{ width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH }}
+        style={{ width: leftPanelWidth, minWidth: leftPanelWidth }}
       >
-        <div className="text-sm font-bold mb-1">controls controls controls controls con</div>
+        <div className="text-sm font-bold mb-1 overflow-hidden whitespace-nowrap">controls controls controls controls controls controls controls</div>
         <div className="flex flex-wrap gap-1">
-          {/* Toggle: show project details */}
-          <Chip active={showProjectDetails} activeColor="bg-blue-100" onClick={onToggleProjectDetails}>
-            Show details
-            {showProjectDetails && <ClearButton onClick={onToggleProjectDetails} />}
-          </Chip>
+          {/* Toggle: show project details (project view only) */}
+          {activeView !== "teammate" && (
+            <Chip active={showProjectDetails} activeColor="bg-blue-100" activeTextColor="text-blue-800" onClick={onToggleProjectDetails}>
+              Show details
+              {showProjectDetails && <ClearButton onClick={onToggleProjectDetails} />}
+            </Chip>
+          )}
 
-          {/* Search: project name */}
-          {searchActive ? (
-            <div className={`${CHIP_BASE} chip-filter-active bg-orange-100`}>
-              <Search size={12} />
+          {/* Search: project name (project view only) */}
+          {activeView !== "teammate" && (searchActive ? (
+            <div className={`${CHIP_BASE} chip-filter-active bg-orange-100 text-orange-900`}>
+              <Search size={12} strokeWidth={4} />
               {searchFocused ? (
                 <input
                   className="bg-transparent outline-none w-20 text-xs"
@@ -190,10 +246,10 @@ export default function DateHeader({
               <ClearButton onClick={clearSearch} />
             </div>
           ) : (
-            <div className={`${CHIP_BASE} bg-white`} onClick={() => { setOpenFilter("projectName"); setSearchFocused(true); }}>
-              <Search size={12} />
+            <div className={`${CHIP_BASE} bg-white text-zinc-800`} onClick={() => { setOpenFilter("projectName"); setSearchFocused(true); }}>
+              <Search size={12} strokeWidth={4} />
             </div>
-          )}
+          ))}
 
           {/* Multi-select filters */}
           {filterDefs.map((def) => {
@@ -204,6 +260,7 @@ export default function DateHeader({
                 <Chip
                   active={!!label}
                   activeColor={def.activeColor ?? "bg-purple-100"}
+                  activeTextColor={def.activeTextColor ?? "text-purple-800"}
                   onClick={() => setOpenFilter(isOpen ? null : def.key)}
                 >
                   {label ? (
@@ -233,6 +290,7 @@ export default function DateHeader({
           <Chip
             active={filters.teammateStatus.size === 0}
             activeColor="bg-green-100"
+            activeTextColor="text-green-800"
             onClick={() => onFilterChange(
               "teammateStatus",
               filters.teammateStatus.size === 0 ? new Set(["Active"]) : new Set()
@@ -243,6 +301,20 @@ export default function DateHeader({
               <ClearButton onClick={() => onFilterChange("teammateStatus", new Set(["Active"]))} />
             )}
           </Chip>
+
+          {/* Teammate view toggles */}
+          {activeView === "teammate" && onToggleShowTotals && (
+            <Chip active={!!showTotals} activeColor="bg-blue-100" activeTextColor="text-blue-800" onClick={onToggleShowTotals}>
+              Show totals
+              {showTotals && <ClearButton onClick={onToggleShowTotals} />}
+            </Chip>
+          )}
+          {activeView === "teammate" && onToggleTotalsOnly && (
+            <Chip active={!!totalsOnly} activeColor="bg-blue-100" activeTextColor="text-blue-800" onClick={onToggleTotalsOnly}>
+              Totals only
+              {totalsOnly && <ClearButton onClick={onToggleTotalsOnly} />}
+            </Chip>
+          )}
         </div>
       </div>
 
@@ -267,12 +339,19 @@ export default function DateHeader({
                 {month.weeks.map((ws, wi) => (
                   <div
                     key={ws}
-                    className={`text-sm text-center py-1.5 box-border border-b-2 border-b-zinc-400 ${
+                    className={`text-sm text-center py-1.5 box-border border-b-2 border-b-zinc-400 relative ${
                       wi === 0 ? "border-l-2 border-l-zinc-300" : "border-l border-l-zinc-200"
-                    } ${isCurrentWeek(ws) ? "bg-amber-200 font-bold text-amber-900" : "text-zinc-700"}`}
+                    } text-zinc-700`}
                     style={{ width: CELL_WIDTH }}
                   >
-                    {formatWeekLabel(ws)}
+                    {isCurrentWeek(ws) && (
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className={`w-6 h-6 rounded-full ${activeView === "teammate" ? "bg-emerald-700" : "bg-purple-800"}`} />
+                      </span>
+                    )}
+                    <span className={`relative ${isCurrentWeek(ws) ? "text-white font-bold" : ""}`}>
+                      {formatWeekLabel(ws)}
+                    </span>
                   </div>
                 ))}
               </div>
