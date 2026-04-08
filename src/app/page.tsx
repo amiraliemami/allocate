@@ -101,7 +101,9 @@ export default function Home() {
     <div className="relative flex h-screen flex-col overflow-hidden bg-white">
       {/* Top bar */}
       <header className="flex items-center justify-center gap-8 bg-white mt-14 mb-10">
-        <hr className="flex-1 border-t-3 border-zinc-900" />
+        <svg className="flex-1 h-3" preserveAspectRatio="none" viewBox="0 0 100 10">
+          <path d="M0 5 Q8.33 0 16.67 5 T33.33 5 T50 5 T66.67 5 T83.33 5 T100 5" fill="none" stroke="#1a1a1a" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+        </svg>
         <div className="flex items-center justify-center gap-10 bg-white">
           <button
             onClick={() => setActiveView("project")}
@@ -135,7 +137,9 @@ export default function Home() {
             TEAM VIEW
           </button>
         </div>
-        <hr className="flex-1 border-t-3 border-zinc-900" />
+        <svg className="flex-1 h-3" preserveAspectRatio="none" viewBox="0 0 100 10">
+          <path d="M0 5 Q8.33 0 16.67 5 T33.33 5 T50 5 T66.67 5 T83.33 5 T100 5" fill="none" stroke="#1a1a1a" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+        </svg>
       </header>
 
       {/* Main content */}
@@ -157,9 +161,9 @@ export default function Home() {
       </main>
 
       {/* Ticker footer */}
-      <footer className="overflow-hidden border-y border-zinc-400 bg-white py-1 mb-2">
-        <div className="animate-[ticker_15s_linear_infinite] whitespace-nowrap text-sm font-mono text-zinc-400">
-          {Array(50).fill("v1.0").join(" ")}
+      <footer className="overflow-hidden text-center">
+        <div className="inline whitespace-nowrap text-xs font-mono text-zinc-400">
+          {Array(60).fill("v1.0").join(" ")}
         </div>
       </footer>
 
