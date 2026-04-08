@@ -43,7 +43,7 @@ export default function Home() {
       });
     } else if (fraction != null) {
       // Create
-      const tempId = `temp-${Date.now()}`;
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const newAlloc: Allocation = {
         id: tempId,
         projectId,
