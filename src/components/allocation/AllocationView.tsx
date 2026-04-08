@@ -8,10 +8,10 @@ import { groupWeeksByMonth } from "@/lib/dateUtils";
 import { getProjectBg } from "@/lib/projectColors";
 import DateHeader from "./DateHeader";
 import ProjectSection from "./ProjectSection";
-
+import TeammateSection from "./TeammateSection";
 import { PROJECT_INFO_WIDTH, TEAMMATE_NAME_WIDTH } from "./ProjectSection";
+import { TEAMMATE_INFO_WIDTH, PROJECT_NAME_WIDTH } from "./TeammateSection";
 
-const LEFT_PANEL_WIDTH = PROJECT_INFO_WIDTH + TEAMMATE_NAME_WIDTH;
 const CELL_WIDTH = 56;
 
 export type AllocationFilters = {
@@ -20,6 +20,8 @@ export type AllocationFilters = {
   projectName: string;
   teammateStatus: Set<string>;
   teammateId: Set<string>;
+  teammateLevel: Set<string>;
+  teammateRole: Set<string>;
 };
 
 const DEFAULT_FILTERS: AllocationFilters = {
@@ -28,6 +30,8 @@ const DEFAULT_FILTERS: AllocationFilters = {
   projectName: "",
   teammateStatus: new Set(["Active"]),
   teammateId: new Set(),
+  teammateRole: new Set(),
+  teammateLevel: new Set(),
 };
 
 interface Props {
@@ -55,6 +59,8 @@ export default function AllocationView({
 }: Props) {
   const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
   const [showProjectDetails, setShowProjectDetails] = useState(false);
+  const [showTotals, setShowTotals] = useState(true);
+  const [totalsOnly, setTotalsOnly] = useState(false);
   const [addedPairs, setAddedPairs] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -115,6 +121,17 @@ export default function AllocationView({
     return set;
   }, [monthGroups]);
 
+  // Teammate totals: sum of fractions per teammate per week
+  const teammateTotals = useMemo(() => {
+    const totals = new Map<string, number>();
+    for (const a of allocations) {
+      if (a.isHidden) continue;
+      const key = `${a.teammateId}|${a.weekStart}`;
+      totals.set(key, (totals.get(key) ?? 0) + a.fraction);
+    }
+    return totals;
+  }, [allocations]);
+
   // Filter to projects that have allocations + match active filters
   const activeProjects = useMemo(() => {
     const projectsWithAllocations = new Set<string>();
@@ -130,7 +147,26 @@ export default function AllocationView({
     });
   }, [projects, allocations, filters]);
 
-  const totalWidth = LEFT_PANEL_WIDTH + weekStarts.length * CELL_WIDTH;
+  // Filter to teammates that have allocations + match active filters
+  const activeTeammates = useMemo(() => {
+    const teammatesWithAllocations = new Set<string>();
+    for (const a of allocations) {
+      if (!a.isHidden) teammatesWithAllocations.add(a.teammateId);
+    }
+    return teammates.filter((t) => {
+      if (!teammatesWithAllocations.has(t.id)) return false;
+      if (filters.teammateStatus.size > 0 && !filters.teammateStatus.has(t.status)) return false;
+      if (filters.teammateId.size > 0 && !filters.teammateId.has(t.id)) return false;
+      if (filters.teammateLevel.size > 0 && !filters.teammateLevel.has(t.level ?? "")) return false;
+      if (filters.teammateRole.size > 0 && !filters.teammateRole.has(t.role ?? "")) return false;
+      return true;
+    });
+  }, [teammates, allocations, filters]);
+
+  const leftPanelWidth = activeView === "project"
+    ? PROJECT_INFO_WIDTH + TEAMMATE_NAME_WIDTH
+    : TEAMMATE_INFO_WIDTH + PROJECT_NAME_WIDTH;
+  const totalWidth = leftPanelWidth + weekStarts.length * CELL_WIDTH;
 
   // Scroll to current month on mount
   useEffect(() => {
@@ -151,6 +187,7 @@ export default function AllocationView({
               teammates={teammates}
               showProjectDetails={showProjectDetails}
               onToggleProjectDetails={() => setShowProjectDetails((v) => !v)}
+              activeView={activeView}
             />
             {activeProjects.map((project, idx) => (
               <ProjectSection
@@ -175,8 +212,51 @@ export default function AllocationView({
         )}
 
         {activeView === "teammate" && (
-          <div className="flex items-center justify-center py-20 text-zinc-600 text-lg font-medium">
-            Teammate view coming soon!
+          <div style={{ minWidth: totalWidth }}>
+            <DateHeader
+              monthGroups={monthGroups}
+              filters={filters}
+              onFilterChange={updateFilter}
+              projects={projects}
+              teammates={teammates}
+              showProjectDetails={false}
+              onToggleProjectDetails={() => {}}
+              activeView={activeView}
+              showTotals={showTotals}
+              onToggleShowTotals={() => setShowTotals((v) => {
+                if (v) setTotalsOnly(false); // turning off showTotals also turns off totalsOnly
+                return !v;
+              })}
+              totalsOnly={totalsOnly}
+              onToggleTotalsOnly={() => {
+                setTotalsOnly((v) => {
+                  if (!v) setShowTotals(true); // turning on totalsOnly forces showTotals on
+                  return !v;
+                });
+              }}
+            />
+            {activeTeammates.map((teammate, idx) => (
+              <TeammateSection
+                key={teammate.id}
+                teammate={teammate}
+                projects={projects}
+                weekStarts={weekStarts}
+                allocationMap={allocationMap}
+                teammateTotals={teammateTotals}
+                bgColor={getProjectBg(idx)}
+                monthBoundaries={monthBoundaries}
+                projectStatusFilter={filters.projectStatus}
+                projectLeadIdFilter={filters.projectLeadId}
+                projectNameFilter={filters.projectName}
+                showTotals={showTotals}
+                totalsOnly={totalsOnly}
+                onCellEdit={onCellEdit}
+                addedPairs={addedPairs}
+                onAddProject={(teammateId, projectId) => {
+                  setAddedPairs((prev) => new Set(prev).add(`${projectId}|${teammateId}`));
+                }}
+              />
+            ))}
           </div>
         )}
       </div>
