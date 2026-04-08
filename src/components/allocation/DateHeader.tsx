@@ -18,7 +18,7 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 
 // ─── Chip helper ─────────────────────────────────────────
 // Shared base classes for all filter chips
-const CHIP_BASE = "chip-filter flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md select-none";
+const CHIP_BASE = "chip-filter border-2 border-zinc-900 flex items-center gap-1 text-xs font-bold text-zinc-800 px-2 py-1 rounded-md select-none";
 
 function Chip({
   active,
