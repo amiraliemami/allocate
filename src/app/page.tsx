@@ -100,40 +100,42 @@ export default function Home() {
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-white">
       {/* Top bar */}
-      <header className="flex items-end justify-center gap-12 bg-white px-12 py-3 mt-4 mb-8">
-        <button
-          onClick={() => setActiveView("project")}
-          className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg ${
-            activeView === "project"
-              ? "btn-chunky-pressed bg-purple-800 text-zinc-100"
-              : "bg-white text-zinc-800"
-          }`}
-        >
-          PROJECT VIEW
-        </button>
+      <header className="flex items-center justify-center gap-8 bg-white mt-14 mb-10">
+        <hr className="flex-1 border-t-3 border-zinc-900" />
+        <div className="flex items-center justify-center gap-10 bg-white">
+          <button
+            onClick={() => setActiveView("project")}
+            className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg shrink-0 ${activeView === "project"
+                ? "btn-chunky-pressed bg-purple-800 text-zinc-100"
+                : "bg-white text-zinc-800"
+              }`}
+          >
+            PROJECT VIEW
+          </button>
 
-        <button
-          onClick={handleSignOut}
-          className="group relative text-xl font-bold tracking-tight text-zinc-900 hover:cursor-pointer"
-        >
-          <span className="inline-block transition-all duration-300 group-hover:scale-0 group-hover:opacity-0">
-            A L L O C A T E
-          </span>
-          <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 group-hover:animate-[bounce_0.3s_infinite]">
-            B Y E B Y E ?
-          </span>
-        </button>
+          <button
+            onClick={handleSignOut}
+            className="group relative text-xl font-bold tracking-tight text-zinc-900 hover:cursor-pointer shrink-0"
+          >
+            <span className="inline-block transition-all duration-300 group-hover:scale-0 group-hover:opacity-0">
+              A L L O C A T E
+            </span>
+            <span className="absolute inset-0 flex items-center justify-center scale-0 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 group-hover:animate-[bounce_0.3s_infinite]">
+              B Y E B Y E ?
+            </span>
+          </button>
 
-        <button
-          onClick={() => setActiveView("teammate")}
-          className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg ${
-            activeView === "teammate"
-              ? "btn-chunky-pressed bg-emerald-800 text-zinc-100"
-              : "bg-white text-zinc-800"
-          }`}
-        >
-          TEAM VIEW
-        </button>
+          <button
+            onClick={() => setActiveView("teammate")}
+            className={`btn-chunky px-5 py-1 text-sm font-bold rounded-lg shrink-0 ${activeView === "teammate"
+                ? "btn-chunky-pressed bg-emerald-800 text-zinc-100"
+                : "bg-white text-zinc-800"
+              }`}
+          >
+            TEAM VIEW
+          </button>
+        </div>
+        <hr className="flex-1 border-t-3 border-zinc-900" />
       </header>
 
       {/* Main content */}
