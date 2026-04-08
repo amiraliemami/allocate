@@ -109,7 +109,7 @@ export default function TeammateSection({
 
   return (
     <div
-      className="mt-2 border-t-2 border-zinc-200 flex"
+      className="mt-4 border-t-2 border-zinc-200 flex"
       onMouseLeave={() => setHovering(false)}
     >
       {/* Teammate info — sticky left, spans full height */}
