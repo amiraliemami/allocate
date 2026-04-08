@@ -42,9 +42,10 @@ function getTotalsColor(fraction: number | undefined): string | undefined {
 interface Props {
   fraction: number | undefined;
   isMonthStart?: boolean;
+  noBorder?: boolean;
 }
 
-function TotalsCellInner({ fraction, isMonthStart }: Props) {
+function TotalsCellInner({ fraction, isMonthStart, noBorder }: Props) {
   const displayValue =
     fraction != null && fraction > 0
       ? (fraction / 100).toFixed(fraction % 10 === 0 ? 1 : 2)
@@ -66,7 +67,7 @@ function TotalsCellInner({ fraction, isMonthStart }: Props) {
         minWidth: CELL_WIDTH,
         backgroundColor: isEmpty ? "white" : bgColor,
       }}
-      className={`flex items-center justify-center text-sm h-full box-border border-b-2 border-b-zinc-200 ${borderClass} font-bold ${
+      className={`flex items-center justify-center text-sm h-full box-border ${noBorder ? "" : "border-b-2 border-b-zinc-200"} ${borderClass} font-bold ${
         isEmpty ? "text-zinc-400"
           : fraction != null && fraction >= 90 && fraction <= 110 ? "text-zinc-800"
           : "text-white"
