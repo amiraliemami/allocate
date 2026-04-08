@@ -7,7 +7,7 @@ import LoginBackground from "@/components/LoginBackground";
 export default function LoginPage() {
   const [hovering, setHovering] = useState(false);
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"auth" | "server" | null>(null);
   const [loading, setLoading] = useState(false);
   const [bounce, setBounce] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -20,24 +20,29 @@ export default function LoginPage() {
   }, [hovering]);
 
   const tryLogin = async (value: string) => {
-    setError(false);
+    setError(null);
     setLoading(true);
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: value }),
-    });
-    if (res.ok) {
-      router.push("/");
-    } else {
-      setError(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: value }),
+      });
+      if (res.ok) {
+        router.push("/");
+      } else {
+        setError(res.status === 401 ? "auth" : "server");
+        setLoading(false);
+      }
+    } catch {
+      setError("server");
       setLoading(false);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
-    setError(false);
+    setError(null);
     setBounce(false);
     requestAnimationFrame(() => setBounce(true));
   };
@@ -88,9 +93,14 @@ export default function LoginPage() {
           data-lpignore="true"
           className={`absolute inset-0 w-full text-center text-2xl font-bold tracking-widest bg-transparent outline-none transition-all duration-300 ${
             hovering ? "opacity-100 scale-100" : "opacity-0 scale-110 pointer-events-none"
-          } ${error ? "text-rose-800 animate-bounce [animation-duration:0.3s]" : "text-zinc-900"}`}
+          } ${error === "auth" ? "text-rose-800 animate-bounce [animation-duration:0.3s]" : "text-zinc-900"}`}
           placeholder=""
         />
+            {error === "server" && (
+              <span className="absolute -bottom-8 left-0 right-0 text-center text-sm text-zinc-500">
+                unexpected error :(
+              </span>
+            )}
           </>
         )}
       </div>

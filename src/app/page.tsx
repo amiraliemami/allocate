@@ -18,6 +18,7 @@ export default function Home() {
   const [allocations, setAllocations] = useState<Allocation[]>([]);
   const [weekStarts, setWeekStarts] = useState<string[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const router = useRouter();
 
   const handleCellEdit = async (
@@ -74,21 +75,25 @@ export default function Home() {
 
   const fetchAll = useCallback(async () => {
     setDataLoading(true);
+    setLoadError(false);
     try {
       const [projRes, teamRes, allocRes] = await Promise.all([
         fetch("/api/projects"),
         fetch("/api/teammates"),
         fetch("/api/allocations"),
       ]);
-      if (projRes.ok) setProjects(await projRes.json());
-      if (teamRes.ok) setTeammates(await teamRes.json());
-      if (allocRes.ok) {
-        const data = await allocRes.json();
-        setAllocations(data.allocations);
-        setWeekStarts(data.weekStarts);
+      if (!projRes.ok || !teamRes.ok || !allocRes.ok) {
+        setLoadError(true);
+        setDataLoading(false);
+        return;
       }
+      setProjects(await projRes.json());
+      setTeammates(await teamRes.json());
+      const data = await allocRes.json();
+      setAllocations(data.allocations);
+      setWeekStarts(data.weekStarts);
     } catch {
-      // Network error — data stays empty
+      setLoadError(true);
     }
     setDataLoading(false);
   }, []);
@@ -144,7 +149,11 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-1 overflow-hidden">
-        {dataLoading ? (
+        {loadError ? (
+          <div className="flex h-full items-center justify-center">
+            <span className="text-xl text-zinc-400 font-semibold">something went wrong... sorry :(</span>
+          </div>
+        ) : dataLoading ? (
           <div className="flex h-full items-center justify-center">
             <div className="wavy-loader flex gap-1.5 text-2xl font-black">
               {["L", "O", "A", "D", "I", "N", "G", "L", "O", "A", "D", "I", "N", "G", "L", "O", "A", "D", "I", "N", "G",
@@ -188,7 +197,7 @@ export default function Home() {
         projects={projects}
         setProjects={setProjects}
         teammates={teammates}
-        disabled={dataLoading}
+        disabled={dataLoading || loadError}
       />
 
       {/* Teammates sidebar + handle (right) */}
@@ -198,7 +207,7 @@ export default function Home() {
         onOpen={() => { setProjectsOpen(false); setTeammatesOpen(true); }}
         teammates={teammates}
         setTeammates={setTeammates}
-        disabled={dataLoading}
+        disabled={dataLoading || loadError}
       />
     </div>
   );
