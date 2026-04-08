@@ -4,7 +4,7 @@ import { useMemo, useRef, useEffect, useState, useCallback } from "react";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import type { Allocation } from "./ProjectSection";
-import { groupWeeksByMonth, getCurrentMonday } from "@/lib/dateUtils";
+import { groupWeeksByMonth } from "@/lib/dateUtils";
 import { getProjectBg } from "@/lib/projectColors";
 import DateHeader from "./DateHeader";
 import ProjectSection from "./ProjectSection";
@@ -51,7 +51,25 @@ export default function AllocationView({
 }: Props) {
   const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
   const [showProjectDetails, setShowProjectDetails] = useState(false);
+  const [addedPairs, setAddedPairs] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollToCurrentMonth = useCallback((smooth = true) => {
+    if (!scrollRef.current || weekStarts.length === 0) return;
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}-${now.getMonth()}`;
+    // Find the first week that belongs to the current month
+    const targetIndex = weekStarts.findIndex((ws) => {
+      const d = new Date(ws + "T00:00:00");
+      return `${d.getFullYear()}-${d.getMonth()}` === currentMonthKey;
+    });
+    if (targetIndex >= 0) {
+      scrollRef.current.scrollTo({
+        left: targetIndex * CELL_WIDTH,
+        behavior: smooth ? "smooth" : "instant",
+      });
+    }
+  }, [weekStarts]);
 
   const updateFilter = useCallback(
     <K extends keyof AllocationFilters>(key: K, value: AllocationFilters[K]) => {
@@ -105,24 +123,14 @@ export default function AllocationView({
       if (filters.projectLeadId.size > 0 && !filters.projectLeadId.has(p.leadId ?? "")) return false;
       return true;
     });
-  }, [projects, allocations, filters.projectStatus, filters.projectLeadId]);
+  }, [projects, allocations, filters]);
 
   const totalWidth = LEFT_PANEL_WIDTH + weekStarts.length * CELL_WIDTH;
 
-  // Scroll to current week on mount
+  // Scroll to current month on mount
   useEffect(() => {
-    if (!scrollRef.current || weekStarts.length === 0) return;
-    const currentMonday = getCurrentMonday();
-    let targetIndex = weekStarts.indexOf(currentMonday);
-    if (targetIndex < 0) {
-      targetIndex = weekStarts.findIndex((w) => w > currentMonday) - 1;
-    }
-    if (targetIndex >= 0) {
-      const containerWidth = scrollRef.current.clientWidth;
-      scrollRef.current.scrollLeft =
-        targetIndex * CELL_WIDTH - containerWidth / 2 + LEFT_PANEL_WIDTH;
-    }
-  }, [weekStarts]);
+    scrollToCurrentMonth(false);
+  }, [scrollToCurrentMonth]);
 
   return (
     <div className="flex flex-col h-full w-full max-w-6xl mx-auto px-12">
@@ -152,6 +160,10 @@ export default function AllocationView({
                 teammateIdFilter={filters.teammateId}
                 showProjectDetails={showProjectDetails}
                 onCellEdit={onCellEdit}
+                addedPairs={addedPairs}
+                onAddTeammate={(projectId, teammateId) => {
+                  setAddedPairs((prev) => new Set(prev).add(`${projectId}|${teammateId}`));
+                }}
               />
             ))}
           </div>

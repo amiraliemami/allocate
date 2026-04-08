@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import AllocationCell from "./AllocationCell";
 import { STATUS_COLORS } from "@/lib/statusColors";
+import { UserRoundPlus } from "lucide-react";
 
 export const PROJECT_INFO_WIDTH = 200;
 export const TEAMMATE_NAME_WIDTH = 90;
@@ -28,6 +30,7 @@ interface Props {
   teammateStatusFilter?: Set<string>;
   teammateIdFilter?: Set<string>;
   showProjectDetails?: boolean;
+  addedPairs?: Set<string>;
   onCellEdit: (
     projectId: string,
     teammateId: string,
@@ -35,6 +38,7 @@ interface Props {
     fraction: number | null,
     existingId: string | undefined
   ) => void;
+  onAddTeammate?: (projectId: string, teammateId: string) => void;
 }
 
 export default function ProjectSection({
@@ -47,12 +51,33 @@ export default function ProjectSection({
   teammateStatusFilter,
   teammateIdFilter,
   showProjectDetails,
+  addedPairs,
   onCellEdit,
+  onAddTeammate,
 }: Props) {
+  const [hovering, setHovering] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const selectRef = useRef<HTMLSelectElement>(null);
+
+  useEffect(() => {
+    if (adding && selectRef.current) {
+      selectRef.current.focus();
+    }
+  }, [adding]);
+
   const teammateIds = new Set<string>();
   for (const ws of weekStarts) {
     for (const t of teammates) {
       if (allocationMap.has(`${project.id}|${t.id}|${ws}`)) {
+        teammateIds.add(t.id);
+      }
+    }
+  }
+
+  // Include teammates added manually via the + button
+  if (addedPairs) {
+    for (const t of teammates) {
+      if (addedPairs.has(`${project.id}|${t.id}`)) {
         teammateIds.add(t.id);
       }
     }
@@ -65,15 +90,31 @@ export default function ProjectSection({
   if (teammateIdFilter && teammateIdFilter.size > 0) {
     projectTeammates = projectTeammates.filter((t) => teammateIdFilter.has(t.id));
   }
-  if (projectTeammates.length === 0) return null;
+  if (projectTeammates.length === 0 && !adding) return null;
 
   const statusColors = STATUS_COLORS[project.status as keyof typeof STATUS_COLORS];
 
+  // Teammates available to add (not already on this project)
+  const availableTeammates = teammates
+    .filter((t) => !teammateIds.has(t.id) && t.status === "Active")
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const handleSelectTeammate = (teammateId: string) => {
+    setAdding(false);
+    if (teammateId && onAddTeammate) {
+      onAddTeammate(project.id, teammateId);
+    }
+  };
+
   return (
-    <div className="mt-4 border-t-2 border-zinc-200 flex">
+    <div
+      className="mt-4 border-t-2 border-zinc-200 flex"
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
       {/* Project info — sticky left, spans full height of this section */}
       <div
-        className="sticky left-0 z-10 shrink-0 border-r border-zinc-200 px-3 py-1"
+        className="sticky left-0 z-10 shrink-0 border-r border-zinc-200 px-3 py-1 relative"
         style={{ width: PROJECT_INFO_WIDTH, minWidth: PROJECT_INFO_WIDTH, minHeight: ROW_HEIGHT, backgroundColor: "white" }}
       >
         <div className="flex flex-col gap-0.5">
@@ -98,39 +139,104 @@ export default function ProjectSection({
             </>
           )}
         </div>
+
+        {/* Add teammate button — appears on hover, aligned with last row */}
+        {hovering && !adding && availableTeammates.length > 0 && (
+          <button
+            onClick={() => setAdding(true)}
+            className="absolute bottom-1 right-2 text-zinc-300 hover:text-violet-600 transition-colors"
+            title="Add teammate"
+          >
+            <UserRoundPlus size={18} />
+          </button>
+        )}
       </div>
 
       {/* Teammate rows + allocation grid */}
       <div className="flex flex-col flex-1">
-        {projectTeammates.map((teammate) => (
-          <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
-            {/* Teammate name — sticky, positioned right after the project info */}
+        {projectTeammates.map((teammate) => {
+          const isUnsaved = addedPairs?.has(`${project.id}|${teammate.id}`) &&
+            !weekStarts.some((ws) => allocationMap.has(`${project.id}|${teammate.id}|${ws}`));
+
+          return (
+            <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
+              <div
+                className={`sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${
+                  isUnsaved ? "italic" : ""
+                }`}
+                style={{
+                  left: PROJECT_INFO_WIDTH,
+                  width: TEAMMATE_NAME_WIDTH,
+                  minWidth: TEAMMATE_NAME_WIDTH,
+                  background: "white",
+                  borderBottomWidth: isUnsaved ? 2 : 1,
+                  borderBottomStyle: isUnsaved ? "dashed" : "solid",
+                  borderBottomColor: isUnsaved ? "#18181b" : "#e4e4e7",
+                }}
+              >
+                {teammate.name}
+              </div>
+
+              <div className="flex" style={{ backgroundColor: bgColor }}>
+                {weekStarts.map((ws) => {
+                  const key = `${project.id}|${teammate.id}|${ws}`;
+                  const alloc = allocationMap.get(key);
+                  return (
+                    <AllocationCell
+                      key={ws}
+                      fraction={alloc?.fraction}
+                      isMonthStart={monthBoundaries.has(ws)}
+                      unsaved={isUnsaved}
+                      onEdit={(val) =>
+                        onCellEdit(project.id, teammate.id, ws, val, alloc?.id)
+                      }
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Add teammate row — appears when adding */}
+        {adding && (
+          <div className="flex" style={{ height: ROW_HEIGHT }}>
             <div
-              className="sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium text-zinc-700 truncate border-b border-zinc-200 border-r-2 border-r-zinc-900"
+              className="sticky z-10 shrink-0 flex items-center border-b border-zinc-200 border-r-2 border-r-zinc-900"
               style={{ left: PROJECT_INFO_WIDTH, width: TEAMMATE_NAME_WIDTH, minWidth: TEAMMATE_NAME_WIDTH, background: "white" }}
             >
-              {teammate.name}
+              <select
+                ref={selectRef}
+                className="w-full h-full text-sm px-1 outline-none bg-violet-50 cursor-pointer"
+                defaultValue=""
+                onChange={(e) => handleSelectTeammate(e.target.value)}
+                onBlur={() => setAdding(false)}
+              >
+                <option value="" disabled>
+                  Select
+                </option>
+                {availableTeammates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Allocation cells */}
+            {/* Empty cells for the new row */}
             <div className="flex" style={{ backgroundColor: bgColor }}>
-              {weekStarts.map((ws) => {
-                const key = `${project.id}|${teammate.id}|${ws}`;
-                const alloc = allocationMap.get(key);
-                return (
-                  <AllocationCell
-                    key={ws}
-                    fraction={alloc?.fraction}
-                    isMonthStart={monthBoundaries.has(ws)}
-                    onEdit={(val) =>
-                      onCellEdit(project.id, teammate.id, ws, val, alloc?.id)
-                    }
-                  />
-                );
-              })}
+              {weekStarts.map((ws) => (
+                <div
+                  key={ws}
+                  className={`box-border border-b border-b-zinc-200 ${
+                    monthBoundaries.has(ws) ? "border-l-2 border-l-zinc-300" : "border-l border-l-zinc-200"
+                  }`}
+                  style={{ width: 56, minWidth: 56, height: ROW_HEIGHT }}
+                />
+              ))}
             </div>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
