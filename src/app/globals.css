@@ -170,6 +170,11 @@ html, body {
 }
 
 /* Inline editable cell */
+/* Login grid background squares */
+.login-grid-square {
+  transition: background-color 0.6s ease, opacity 0.6s ease;
+}
+
 .cell-editable {
   cursor: text;
   border-radius: 4px;

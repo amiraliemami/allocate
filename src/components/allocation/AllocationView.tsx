@@ -9,7 +9,9 @@ import { getProjectBg } from "@/lib/projectColors";
 import DateHeader from "./DateHeader";
 import ProjectSection from "./ProjectSection";
 
-const LEFT_PANEL_WIDTH = 260;
+import { PROJECT_INFO_WIDTH, TEAMMATE_NAME_WIDTH } from "./ProjectSection";
+
+const LEFT_PANEL_WIDTH = PROJECT_INFO_WIDTH + TEAMMATE_NAME_WIDTH;
 const CELL_WIDTH = 56;
 
 export type AllocationFilters = {
