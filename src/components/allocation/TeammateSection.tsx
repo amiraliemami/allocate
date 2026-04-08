@@ -5,12 +5,12 @@ import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import type { Allocation } from "./ProjectSection";
 import AllocationCell from "./AllocationCell";
-import OverallCell from "./OverallCell";
+import TotalsCell from "./TotalsCell";
 import { FolderPlus } from "lucide-react";
 
 export const TEAMMATE_INFO_WIDTH = 140;
 export const PROJECT_NAME_WIDTH = 240;
-const ROW_HEIGHT = 30;
+const ROW_HEIGHT = 25;
 
 interface Props {
   teammate: Teammate;
@@ -143,16 +143,16 @@ export default function TeammateSection({
       <div className="flex flex-col flex-1">
         {/* TOTAL row */}
         {showTotals && (
-          <div className="flex" style={{ height: ROW_HEIGHT }}>
+          <div className="flex" style={{ height: 24 }}>
             <div
-              className="sticky z-10 shrink-0 flex items-center px-2 text-xs font-bold text-zinc-500 uppercase tracking-wide border-r-2 border-r-zinc-900 border-b border-zinc-200"
+              className="sticky z-10 shrink-0 flex items-center px-2 text-xs font-bold text-zinc-500 uppercase tracking-wide border-r-2 border-r-zinc-900 border-b-2 border-b-zinc-200"
               style={{ left: TEAMMATE_INFO_WIDTH, width: PROJECT_NAME_WIDTH, minWidth: PROJECT_NAME_WIDTH, background: "white" }}
             >
               Total
             </div>
-            <div className="flex" style={{ backgroundColor: bgColor }}>
+            <div className="flex">
               {weekStarts.map((ws) => (
-                <OverallCell
+                <TotalsCell
                   key={ws}
                   fraction={teammateTotals.get(`${teammate.id}|${ws}`)}
                   isMonthStart={monthBoundaries.has(ws)}

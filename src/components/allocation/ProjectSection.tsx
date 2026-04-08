@@ -9,7 +9,7 @@ import { UserRoundPlus } from "lucide-react";
 
 export const PROJECT_INFO_WIDTH = 200;
 export const TEAMMATE_NAME_WIDTH = 90;
-const ROW_HEIGHT = 30;
+const ROW_HEIGHT = 25;
 
 export type Allocation = {
   id: string;

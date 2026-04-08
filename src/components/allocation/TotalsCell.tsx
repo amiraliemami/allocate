@@ -8,7 +8,7 @@ function lerp(a: number, b: number, t: number): number {
   return Math.round(a + (b - a) * Math.max(0, Math.min(1, t)));
 }
 
-function getOverallColor(fraction: number | undefined): string | undefined {
+function getTotalsColor(fraction: number | undefined): string | undefined {
   if (fraction == null || fraction === 0) return undefined;
 
   // Orange for low, white for optimal, red for over
@@ -44,26 +44,30 @@ interface Props {
   isMonthStart?: boolean;
 }
 
-function OverallCellInner({ fraction, isMonthStart }: Props) {
+function TotalsCellInner({ fraction, isMonthStart }: Props) {
   const displayValue =
     fraction != null && fraction > 0
       ? (fraction / 100).toFixed(fraction % 10 === 0 ? 1 : 2)
       : "";
 
-  const bgColor = getOverallColor(fraction);
+  const bgColor = getTotalsColor(fraction);
+  const isEmpty = !bgColor;
+
   const borderClass = isMonthStart
     ? "border-l-2 border-l-zinc-300"
-    : "border-l border-l-zinc-200";
+    : isEmpty
+      ? ""
+      : "border-l border-l-zinc-200";
 
   return (
     <div
       style={{
         width: CELL_WIDTH,
         minWidth: CELL_WIDTH,
-        backgroundColor: bgColor,
+        backgroundColor: isEmpty ? "white" : bgColor,
       }}
-      className={`flex items-center justify-center text-sm h-full box-border border-b-1 border-zinc-200 ${borderClass} font-bold ${
-        !bgColor ? "text-zinc-400"
+      className={`flex items-center justify-center text-sm h-full box-border border-b-2 border-b-zinc-200 ${borderClass} font-bold ${
+        isEmpty ? "text-zinc-400"
           : fraction != null && fraction >= 90 && fraction <= 110 ? "text-zinc-800"
           : "text-white"
       }`}
@@ -73,5 +77,5 @@ function OverallCellInner({ fraction, isMonthStart }: Props) {
   );
 }
 
-const OverallCell = memo(OverallCellInner);
-export default OverallCell;
+const TotalsCell = memo(TotalsCellInner);
+export default TotalsCell;
