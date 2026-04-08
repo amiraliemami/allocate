@@ -157,7 +157,7 @@ export default function Home() {
       {/* Ticker footer */}
       <footer className="overflow-hidden border-y border-zinc-400 bg-white py-1 mb-2">
         <div className="animate-[ticker_15s_linear_infinite] whitespace-nowrap text-sm font-mono text-zinc-400">
-          {Array(50).fill("v0.1").join(" ")}
+          {Array(50).fill("v1.0").join(" ")}
         </div>
       </footer>
 
