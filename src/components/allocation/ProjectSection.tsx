@@ -4,8 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import AllocationCell from "./AllocationCell";
+import useDragToFill from "@/hooks/useDragToFill";
 import { STATUS_COLORS } from "@/lib/statusColors";
 import { Plus } from "lucide-react";
+
+const CELL_WIDTH = 56;
 
 export const PROJECT_INFO_WIDTH = 200;
 export const TEAMMATE_NAME_WIDTH = 90;
@@ -60,6 +63,7 @@ export default function ProjectSection({
   const [hovering, setHovering] = useState(false);
   const [adding, setAdding] = useState(false);
   const selectRef = useRef<HTMLSelectElement>(null);
+  const drag = useDragToFill({ weekStarts, cellWidth: CELL_WIDTH });
 
   useEffect(() => {
     if (adding && selectRef.current) {
@@ -179,9 +183,34 @@ export default function ProjectSection({
                 {teammate.name}
               </div>
 
-              <div className="flex" style={{ backgroundColor: bgColor }} onMouseEnter={() => setHovering(false)}>
-                {weekStarts.map((ws) => {
+              <div
+                className="flex"
+                style={{ backgroundColor: bgColor }}
+                onMouseEnter={() => setHovering(false)}
+                onMouseDown={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const idx = Math.floor((e.clientX - rect.left) / CELL_WIDTH);
+                  const ws = weekStarts[idx];
+                  if (!ws) return;
+                  const alloc = allocationMap.get(`${project.id}|${teammate.id}|${ws}`);
+                  drag.onMouseDown(e, idx, alloc?.fraction, `${project.id}|${teammate.id}`);
+                }}
+                onMouseMove={drag.onMouseMove}
+                onMouseUp={() => {
+                  const fills = drag.onMouseUp();
+                  if (!fills) return;
+                  for (const { index, fraction: frac } of fills) {
+                    const ws = weekStarts[index];
+                    const existing = allocationMap.get(`${project.id}|${teammate.id}|${ws}`);
+                    if (existing?.fraction === frac) continue;
+                    onCellEdit(project.id, teammate.id, ws, frac, existing?.id);
+                  }
+                }}
+                onClickCapture={drag.onClickCapture}
+              >
+                {weekStarts.map((ws, idx) => {
                   const key = `${project.id}|${teammate.id}|${ws}`;
+                  const rowKey = `${project.id}|${teammate.id}`;
                   const alloc = allocationMap.get(key);
                   return (
                     <AllocationCell
@@ -190,6 +219,7 @@ export default function ProjectSection({
                       teammateTotal={teammateTotals.get(`${teammate.id}|${ws}`)}
                       isMonthStart={monthBoundaries.has(ws)}
                       unsaved={isUnsaved}
+                      previewFraction={drag.dragRowKey === rowKey ? drag.previewMap.get(idx) : undefined}
                       onEdit={(val) =>
                         onCellEdit(project.id, teammate.id, ws, val, alloc?.id)
                       }

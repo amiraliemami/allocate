@@ -9,17 +9,20 @@ interface Props {
   teammateTotal?: number;
   isMonthStart?: boolean;
   unsaved?: boolean;
+  previewFraction?: number | null;
   onEdit: (value: number | null) => void;
 }
 
-function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, onEdit }: Props) {
+function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, previewFraction, onEdit }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [flashRed, setFlashRed] = useState(false);
 
+  const isPreview = previewFraction !== undefined;
+  const showFraction = isPreview ? previewFraction : fraction;
   const displayValue =
-    fraction != null
-      ? (fraction / 100).toFixed(fraction % 10 === 0 ? 1 : 2)
+    showFraction != null && showFraction > 0
+      ? (showFraction / 100).toFixed(showFraction % 10 === 0 ? 1 : 2)
       : "";
 
   const borderClass = isMonthStart
@@ -85,6 +88,9 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, o
         width: CELL_WIDTH,
         minWidth: CELL_WIDTH,
         backgroundColor: unsaved ? "rgb(248, 248, 248)" : "transparent",
+        borderBottomWidth: isPreview ? 2 : undefined,
+        borderBottomStyle: isPreview ? "solid" : undefined,
+        borderBottomColor: isPreview ? "rgb(117, 117, 117)" : undefined,
         animation: flashRed ? "cellFlashRed 0.4s ease-out" : undefined,
       }}
       onAnimationEnd={() => setFlashRed(false)}
