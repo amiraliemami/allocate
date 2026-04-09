@@ -4,10 +4,13 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import type { Project } from "./ProjectsSidebar";
 import InlineSelect from "./InlineSelect";
 import InlineText from "./InlineText";
+import InlineDate from "./InlineDate";
+import InlineBlurb from "./InlineBlurb";
 import { STATUS_COLORS, STATUS_ORDER } from "@/lib/statusColors";
 import ColumnFilterPopover from "./ColumnFilterPopover";
 import TextFilter from "./filters/TextFilter";
 import MultiSelectFilter from "./filters/MultiSelectFilter";
+import DateRangeFilter from "./filters/DateRangeFilter";
 
 type Teammate = { id: string; name: string };
 
@@ -20,6 +23,9 @@ type ProjectFilters = {
   conversionProbability: Set<string>;
   billable: Set<string>;
   unit4Code: string;
+  startDate: { from: string; to: string };
+  endDate: { from: string; to: string };
+  blurb: string;
   leadId: Set<string>;
 };
 
@@ -32,6 +38,9 @@ const EMPTY_FILTERS: ProjectFilters = {
   conversionProbability: new Set(),
   billable: new Set(),
   unit4Code: "",
+  startDate: { from: "", to: "" },
+  endDate: { from: "", to: "" },
+  blurb: "",
   leadId: new Set(),
 };
 
@@ -45,6 +54,9 @@ function isFilterActive(filters: ProjectFilters): boolean {
     filters.conversionProbability.size > 0 ||
     filters.billable.size > 0 ||
     filters.unit4Code !== "" ||
+    filters.startDate.from !== "" || filters.startDate.to !== "" ||
+    filters.endDate.from !== "" || filters.endDate.to !== "" ||
+    filters.blurb !== "" ||
     filters.leadId.size > 0
   );
 }
@@ -52,6 +64,10 @@ function isFilterActive(filters: ProjectFilters): boolean {
 function isFieldActive(filters: ProjectFilters, field: keyof ProjectFilters): boolean {
   const v = filters[field];
   if (v instanceof Set) return v.size > 0;
+  if (field === "startDate" || field === "endDate") {
+    const d = v as { from: string; to: string };
+    return d.from !== "" || d.to !== "";
+  }
   if (field === "billable") return v !== "all";
   return v !== "";
 }
@@ -145,6 +161,19 @@ export default function ProjectsTable({
       if (filters.conversionProbability.size > 0 && !filters.conversionProbability.has(String(p.conversionProbability ?? ""))) return false;
       if (filters.billable.size > 0 && !filters.billable.has(String(p.billable))) return false;
       if (filters.unit4Code && !(p.unit4Code ?? "").toLowerCase().includes(filters.unit4Code.toLowerCase())) return false;
+      if (filters.startDate.from || filters.startDate.to) {
+        const d = p.startDate ? p.startDate.slice(0, 10) : "";
+        if (!d) return false;
+        if (filters.startDate.from && d < filters.startDate.from) return false;
+        if (filters.startDate.to && d > filters.startDate.to) return false;
+      }
+      if (filters.endDate.from || filters.endDate.to) {
+        const d = p.endDate ? p.endDate.slice(0, 10) : "";
+        if (!d) return false;
+        if (filters.endDate.from && d < filters.endDate.from) return false;
+        if (filters.endDate.to && d > filters.endDate.to) return false;
+      }
+      if (filters.blurb && !(p.blurb ?? "").toLowerCase().includes(filters.blurb.toLowerCase())) return false;
       if (filters.leadId.size > 0 && !filters.leadId.has(p.leadId ?? "")) return false;
       return true;
     });
@@ -181,6 +210,7 @@ export default function ProjectsTable({
 
   const columns: (HeaderCol | null)[] = [
     { field: "name", label: "Name" },
+    { field: "leadId", label: "Lead" },
     { field: "pillar", label: "Pillar" },
     { field: "region", label: "Region" },
     { field: "billingRate", label: "Rate" },
@@ -188,7 +218,9 @@ export default function ProjectsTable({
     { field: "conversionProbability", label: "Prob%" },
     { field: "billable", label: "Billable" },
     { field: "unit4Code", label: "U4 Code" },
-    { field: "leadId", label: "Lead", align: "right" },
+    { field: "startDate", label: "Start" },
+    { field: "endDate", label: "End" },
+    { field: "blurb", label: "Blurb" },
     null, // delete column
   ];
 
@@ -210,6 +242,12 @@ export default function ProjectsTable({
         return <MultiSelectFilter options={CONV_PROB_OPTIONS.filter((o) => o.value)} selected={filters.conversionProbability} onChange={(v) => updateFilter("conversionProbability", v)} />;
       case "billable":
         return <MultiSelectFilter options={[{ value: "true", label: "Yes" }, { value: "false", label: "No" }]} selected={filters.billable} onChange={(v) => updateFilter("billable", v)} />;
+      case "startDate":
+        return <DateRangeFilter from={filters.startDate.from} to={filters.startDate.to} onChange={(f, t) => updateFilter("startDate", { from: f, to: t })} />;
+      case "endDate":
+        return <DateRangeFilter from={filters.endDate.from} to={filters.endDate.to} onChange={(f, t) => updateFilter("endDate", { from: f, to: t })} />;
+      case "blurb":
+        return <TextFilter value={filters.blurb} onChange={(v) => updateFilter("blurb", v)} placeholder="Search blurb..." />;
       case "leadId":
         return <MultiSelectFilter options={leadFilterOptions} selected={filters.leadId} onChange={(v) => updateFilter("leadId", v)} searchable />;
       default:
@@ -221,10 +259,10 @@ export default function ProjectsTable({
     <div className="space-y-6">
 
       {/* Fixed-width table — sidebar handles scrolling */}
-      <div className="min-w-[990px]">
+      <div className="min-w-[1380px]">
 
       {/* Table header — before pseudo-element covers content scrolling above */}
-      <div className="sticky top-0 z-20 grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_90px_120px_40px] border-y-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
+      <div className="sticky top-0 z-20 grid grid-cols-[220px_120px_100px_80px_100px_100px_70px_70px_90px_110px_110px_150px_40px] border-y-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
         {columns.map((col, i) =>
           col ? (
             <div
@@ -316,7 +354,7 @@ function ProjectRow({
 
   return (
     <div
-      className={`grid grid-cols-[1fr_100px_80px_100px_100px_70px_70px_90px_120px_40px] gap-px transition-colors ${
+      className={`grid grid-cols-[220px_120px_100px_80px_100px_100px_70px_70px_90px_110px_110px_150px_40px] gap-px transition-colors ${
         confirming
           ? "bg-rose-50"
           : isDraft
@@ -355,6 +393,12 @@ function ProjectRow({
               if (v.trim()) onUpdate(project.id, "name", v.trim());
             }}
             autoFocus={isDraft}
+          />
+          <InlineSelect
+            value={project.leadId ?? ""}
+            options={leadOptions}
+            onSave={(v) => onUpdate(project.id, "leadId", v || null)}
+            disabled={isDraft}
           />
           <InlineSelect
             value={project.pillar ?? ""}
@@ -407,10 +451,19 @@ function ProjectRow({
             placeholder="—"
             onSave={(v) => onUpdate(project.id, "unit4Code", v || null)}
           />
-          <InlineSelect
-            value={project.leadId ?? ""}
-            options={leadOptions}
-            onSave={(v) => onUpdate(project.id, "leadId", v || null)}
+          <InlineDate
+            value={project.startDate}
+            onSave={(v) => onUpdate(project.id, "startDate", v || null)}
+            disabled={isDraft}
+          />
+          <InlineDate
+            value={project.endDate}
+            onSave={(v) => onUpdate(project.id, "endDate", v || null)}
+            disabled={isDraft}
+          />
+          <InlineBlurb
+            value={project.blurb}
+            onSave={(v) => onUpdate(project.id, "blurb", v)}
             disabled={isDraft}
           />
           <button
