@@ -17,13 +17,13 @@ enum Role {
 }
 
 enum Level {
-  Intern
+  INT
   I
   II
   III
   IV
   AD
-  Director
+  D
 }
 
 enum Region {

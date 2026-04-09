@@ -60,13 +60,13 @@ const ROLE_OPTIONS = [
 
 const LEVEL_OPTIONS = [
   { value: "", label: "—" },
-  { value: "Intern", label: "Intern" },
+  { value: "INT", label: "INT" },
   { value: "I", label: "I" },
   { value: "II", label: "II" },
   { value: "III", label: "III" },
   { value: "IV", label: "IV" },
   { value: "AD", label: "AD" },
-  { value: "Director", label: "Director" },
+  { value: "D", label: "D" },
 ];
 
 const REGION_OPTIONS = [

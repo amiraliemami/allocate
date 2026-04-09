@@ -137,13 +137,13 @@ export default function DateHeader({
           key: "teammateLevel",
           label: "Level",
           options: [
-            { value: "Intern", label: "Intern" },
+            { value: "INT", label: "INT" },
             { value: "I", label: "I" },
             { value: "II", label: "II" },
             { value: "III", label: "III" },
             { value: "IV", label: "IV" },
             { value: "AD", label: "AD" },
-            { value: "Director", label: "Director" },
+            { value: "D", label: "D" },
           ],
         },
       ]
