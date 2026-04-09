@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       pillar: body.pillar ?? null,
       region: body.region ?? null,
       billingRate: body.billingRate ?? null,
-      status: body.status ?? "Pipeline",
+      status: body.status ?? "Upcoming",
       conversionProbability: body.conversionProbability ?? null,
       billable: body.billable ?? false,
       unit4Code: body.unit4Code ?? null,

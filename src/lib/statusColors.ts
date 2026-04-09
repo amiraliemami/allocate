@@ -1,5 +1,5 @@
 export const STATUS_COLORS = {
-  Pipeline: {
+  Upcoming: {
     chip: "bg-amber-100 text-amber-800 border-amber-800",
     rowBg: "bg-amber-100/70",
     rowBgAlt: "bg-amber-50",
@@ -11,13 +11,13 @@ export const STATUS_COLORS = {
     rowBgAlt: "bg-emerald-50",
     border: "border-emerald-800",
   },
-  Inactive: {
+  Paused: {
     chip: "bg-rose-100 text-rose-800 border-rose-800",
     rowBg: "bg-rose-100/70",
     rowBgAlt: "bg-rose-50",
     border: "border-rose-800",
   },
-  Archive: {
+  Archived: {
     chip: "bg-zinc-200 text-zinc-700 border-zinc-700",
     rowBg: "bg-zinc-100/70",
     rowBgAlt: "bg-zinc-50",
@@ -34,9 +34,9 @@ export const STATUS_COLORS = {
 export type StatusKey = keyof typeof STATUS_COLORS;
 
 export const STATUS_ORDER: StatusKey[] = [
-  "Pipeline",
+  "Upcoming",
   "Active",
-  "Inactive",
-  "Archive",
+  "Paused",
+  "Archived",
   "Completed",
 ];

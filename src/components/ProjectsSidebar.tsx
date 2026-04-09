@@ -83,7 +83,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
       pillar: null,
       region: null,
       billingRate: null,
-      status: "Pipeline",
+      status: "Upcoming",
       conversionProbability: null,
       billable: false,
       unit4Code: null,
