@@ -259,10 +259,10 @@ export default function ProjectsTable({
     <div className="space-y-6">
 
       {/* Fixed-width table — sidebar handles scrolling */}
-      <div className="min-w-[1310px]">
+      <div className="min-w-[1380px]">
 
       {/* Table header — before pseudo-element covers content scrolling above */}
-      <div className="sticky top-0 z-20 grid grid-cols-[1fr_120px_100px_80px_100px_100px_70px_70px_90px_110px_110px_1fr_40px] border-y-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
+      <div className="sticky top-0 z-20 grid grid-cols-[220px_120px_100px_80px_100px_100px_70px_70px_90px_110px_110px_150px_40px] border-y-2 border-zinc-900 bg-white text-sm font-bold text-zinc-900 overflow-visible divide-x-2 divide-zinc-900 before:content-[''] before:absolute before:-top-6 before:-left-1 before:-right-1 before:h-5.5 before:bg-white">
         {columns.map((col, i) =>
           col ? (
             <div
@@ -354,7 +354,7 @@ function ProjectRow({
 
   return (
     <div
-      className={`grid grid-cols-[1fr_120px_100px_80px_100px_100px_70px_70px_90px_110px_110px_1fr_40px] gap-px transition-colors ${
+      className={`grid grid-cols-[220px_120px_100px_80px_100px_100px_70px_70px_90px_110px_110px_150px_40px] gap-px transition-colors ${
         confirming
           ? "bg-rose-50"
           : isDraft
