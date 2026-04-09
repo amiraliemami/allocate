@@ -14,10 +14,10 @@
 - When entering allocations, tooltip should show remaining allocation e.g. "Remaining: 0.2" for each cell
 - Drag-to-copy for copying allocations easily
 - Update field values
+- Merge some projects
 
 ## To Do
 
-- Merge some projects
 - Project table: Add Start and End dates, Funder (multi-select, self-edit), Partner/Client (multi-select, self-edit), Blurb
 - Data cleanup
 - Hover-open total allocations view for quick reference

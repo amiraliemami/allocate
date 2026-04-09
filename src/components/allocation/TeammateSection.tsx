@@ -36,6 +36,7 @@ interface Props {
     existingId: string | undefined
   ) => void;
   onAddProject?: (teammateId: string, projectId: string) => void;
+  onRemovePair?: (projectId: string, teammateId: string) => void;
 }
 
 export default function TeammateSection({
@@ -54,6 +55,7 @@ export default function TeammateSection({
   addedPairs,
   onCellEdit,
   onAddProject,
+  onRemovePair,
 }: Props) {
   const [hovering, setHovering] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -153,7 +155,7 @@ export default function TeammateSection({
           return (
             <div key={project.id} className="flex" style={{ height: ROW_HEIGHT }}>
               <div
-                className={`sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${isUnsaved ? "italic" : ""}`}
+                className={`group/name sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${isUnsaved ? "italic" : ""}`}
                 style={{
                   left: TEAMMATE_INFO_WIDTH,
                   width: PROJECT_NAME_WIDTH,
@@ -165,7 +167,16 @@ export default function TeammateSection({
                 }}
                 onMouseEnter={() => setHovering(true)}
               >
-                {project.name}
+                <span className="truncate">{project.name}</span>
+                {isUnsaved && onRemovePair && (
+                  <button
+                    className="hidden group-hover/name:flex items-center justify-center ml-auto shrink-0 w-4 h-4 rounded text-zinc-500 hover:text-red-600 hover:bg-red-100"
+                    onClick={() => onRemovePair(project.id, teammate.id)}
+                    title="Remove"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
 
               <div
