@@ -132,20 +132,15 @@ export default function AllocationView({
     return totals;
   }, [allocations]);
 
-  // Filter to projects that have allocations + match active filters
+  // Filter projects matching active filters (includes projects with no allocations)
   const activeProjects = useMemo(() => {
-    const projectsWithAllocations = new Set<string>();
-    for (const a of allocations) {
-      if (!a.isHidden) projectsWithAllocations.add(a.projectId);
-    }
     return projects.filter((p) => {
-      if (!projectsWithAllocations.has(p.id)) return false;
       if (filters.projectStatus.size > 0 && !filters.projectStatus.has(p.status)) return false;
       if (filters.projectLeadId.size > 0 && !filters.projectLeadId.has(p.leadId ?? "")) return false;
       if (filters.projectName && !p.name.toLowerCase().includes(filters.projectName.toLowerCase())) return false;
       return true;
     });
-  }, [projects, allocations, filters]);
+  }, [projects, filters]);
 
   // Filter to teammates that have allocations + match active filters
   const activeTeammates = useMemo(() => {
@@ -207,6 +202,13 @@ export default function AllocationView({
                 onAddTeammate={(projectId, teammateId) => {
                   setAddedPairs((prev) => new Set(prev).add(`${projectId}|${teammateId}`));
                 }}
+                onRemovePair={(projectId, teammateId) => {
+                  setAddedPairs((prev) => {
+                    const next = new Set(prev);
+                    next.delete(`${projectId}|${teammateId}`);
+                    return next;
+                  });
+                }}
               />
             ))}
           </div>
@@ -255,6 +257,13 @@ export default function AllocationView({
                 addedPairs={addedPairs}
                 onAddProject={(teammateId, projectId) => {
                   setAddedPairs((prev) => new Set(prev).add(`${projectId}|${teammateId}`));
+                }}
+                onRemovePair={(projectId, teammateId) => {
+                  setAddedPairs((prev) => {
+                    const next = new Set(prev);
+                    next.delete(`${projectId}|${teammateId}`);
+                    return next;
+                  });
                 }}
               />
             ))}

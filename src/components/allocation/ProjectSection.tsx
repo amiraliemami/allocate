@@ -43,6 +43,7 @@ interface Props {
     existingId: string | undefined
   ) => void;
   onAddTeammate?: (projectId: string, teammateId: string) => void;
+  onRemovePair?: (projectId: string, teammateId: string) => void;
 }
 
 export default function ProjectSection({
@@ -59,6 +60,7 @@ export default function ProjectSection({
   addedPairs,
   onCellEdit,
   onAddTeammate,
+  onRemovePair,
 }: Props) {
   const [hovering, setHovering] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -96,8 +98,6 @@ export default function ProjectSection({
   if (teammateIdFilter && teammateIdFilter.size > 0) {
     projectTeammates = projectTeammates.filter((t) => teammateIdFilter.has(t.id));
   }
-  if (projectTeammates.length === 0 && !adding) return null;
-
   const statusColors = STATUS_COLORS[project.status as keyof typeof STATUS_COLORS];
 
   // Teammates available to add (not already on this project)
@@ -167,7 +167,7 @@ export default function ProjectSection({
           return (
             <div key={teammate.id} className="flex" style={{ height: ROW_HEIGHT }}>
               <div
-                className={`sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${isUnsaved ? "italic" : ""
+                className={`group/name sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${isUnsaved ? "italic" : ""
                   }`}
                 style={{
                   left: PROJECT_INFO_WIDTH,
@@ -180,7 +180,16 @@ export default function ProjectSection({
                 }}
                 onMouseEnter={() => setHovering(true)}
               >
-                {teammate.name}
+                <span className="truncate">{teammate.name}</span>
+                {isUnsaved && onRemovePair && (
+                  <button
+                    className="hidden group-hover/name:flex items-center justify-center ml-auto shrink-0 w-4 h-4 rounded text-zinc-500 hover:text-red-600 hover:bg-red-100"
+                    onClick={() => onRemovePair(project.id, teammate.id)}
+                    title="Remove"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
 
               <div
