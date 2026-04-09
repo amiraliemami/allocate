@@ -60,11 +60,13 @@ const ROLE_OPTIONS = [
 
 const LEVEL_OPTIONS = [
   { value: "", label: "—" },
+  { value: "Intern", label: "Intern" },
   { value: "I", label: "I" },
   { value: "II", label: "II" },
   { value: "III", label: "III" },
   { value: "IV", label: "IV" },
-  { value: "Chief", label: "Chief" },
+  { value: "AD", label: "AD" },
+  { value: "Director", label: "Director" },
 ];
 
 const REGION_OPTIONS = [
@@ -73,6 +75,7 @@ const REGION_OPTIONS = [
   { value: "IND", label: "IND" },
   { value: "WNA", label: "WNA" },
   { value: "ESA", label: "ESA" },
+  { value: "SEA", label: "SEA" },
 ];
 
 const TEAMMATE_STATUS_OPTIONS = TEAMMATE_STATUS_ORDER.map((s) => ({

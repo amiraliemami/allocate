@@ -17,11 +17,13 @@ enum Role {
 }
 
 enum Level {
+  Intern
   I
   II
   III
   IV
-  Chief
+  AD
+  Director
 }
 
 enum Region {
@@ -29,6 +31,7 @@ enum Region {
   IND
   WNA
   ESA
+  SEA
 }
 
 enum TeammateStatus {
@@ -40,7 +43,7 @@ enum Pillar {
   Products
   Services
   Advisory
-  Internal
+  Admin
 }
 
 enum BillingRate {
@@ -52,10 +55,10 @@ enum BillingRate {
 }
 
 enum ProjectStatus {
-  Pipeline
+  Upcoming
   Active
-  Inactive
-  Archive
+  Paused
+  Archived
   Completed
 }
 
@@ -86,7 +89,7 @@ model Project {
   pillar                Pillar?
   region                Region?
   billingRate           BillingRate?
-  status                ProjectStatus  @default(Pipeline)
+  status                ProjectStatus  @default(Upcoming)
   conversionProbability Int?
   billable              Boolean        @default(false)
   unit4Code             String?

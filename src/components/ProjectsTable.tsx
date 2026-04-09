@@ -61,7 +61,7 @@ const PILLAR_OPTIONS = [
   { value: "Products", label: "Products" },
   { value: "Services", label: "Services" },
   { value: "Advisory", label: "Advisory" },
-  { value: "Internal", label: "Internal" },
+  { value: "Admin", label: "Admin" },
 ];
 
 const REGION_OPTIONS = [
@@ -70,6 +70,7 @@ const REGION_OPTIONS = [
   { value: "IND", label: "IND" },
   { value: "WNA", label: "WNA" },
   { value: "ESA", label: "ESA" },
+  { value: "SEA", label: "SEA" },
 ];
 
 const BILLING_RATE_OPTIONS = [
