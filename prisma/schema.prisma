@@ -93,6 +93,9 @@ model Project {
   conversionProbability Int?
   billable              Boolean        @default(false)
   unit4Code             String?
+  startDate             DateTime?      @db.Date
+  endDate               DateTime?      @db.Date
+  blurb                 String?
 
   leadId String?
   lead   Teammate? @relation(fields: [leadId], references: [id], onDelete: SetNull)

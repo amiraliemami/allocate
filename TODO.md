@@ -22,7 +22,6 @@
 - Data cleanup
 - Hover-open total allocations view for quick reference
 - Visualisations / histograms
-- Add extra fields as per [Isha's request](https://idinsight.slack.com/archives/D05JKT4PPAP/p1775562841227039)
 
 ## Future
 
