@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import ProjectsSidebar from "@/components/ProjectsSidebar";
 import TeammatesSidebar from "@/components/TeammatesSidebar";
+import WatermarkBackground from "@/components/WatermarkBackground";
 import AllocationView from "@/components/allocation/AllocationView";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
@@ -105,35 +106,7 @@ export default function Home() {
   return (
     <div className="relative isolate flex h-screen flex-col overflow-hidden bg-white">
       {/* Watermark background */}
-      <svg
-        className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
-        aria-hidden="true"
-      >
-        <defs>
-          <pattern
-            id="allocate-watermark"
-            x="0"
-            y="0"
-            width="120"
-            height="24"
-            patternUnits="userSpaceOnUse"
-            patternTransform="rotate(-45)"
-          >
-            <text
-              x="0"
-              y="16"
-              fontFamily="system-ui, sans-serif"
-              fontSize="16"
-              fontWeight="700"
-              fill="#1a1a1a"
-              fillOpacity="0.04"
-            >
-              A L L O C A T E
-            </text>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#allocate-watermark)" />
-      </svg>
+      <WatermarkBackground text="A L L O C A T E" className="-z-10" color="black" opacity={0.05} rotation={90} />
 
       {/* Top bar */}
       <header className="flex items-center justify-center gap-8 bg-white mt-14 mb-10">

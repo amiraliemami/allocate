@@ -2,6 +2,7 @@
 
 import { Dispatch, SetStateAction, useState } from "react";
 import TeammatesTable from "./TeammatesTable";
+import WatermarkBackground from "./WatermarkBackground";
 
 export type Teammate = {
   id: string;
@@ -125,6 +126,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
         <div
           className={`fixed inset-y-0 right-0 z-50 flex w-[60%] max-w-[1000px] flex-col border-l-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-right" : "slide-in-right"}`}
         >
+          <WatermarkBackground text="T E A M " className="-z-10" color="green" opacity={0.3} rotation={20}/>
           {/* Handle — attached to left edge of panel */}
           <div className="absolute left-2 top-2/3 -translate-y-1/2 -translate-x-full z-[51]">
             <button
@@ -143,7 +145,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
           {/* Header */}
           <div className="flex items-start justify-start gap-3 px-8 pt-8 pb-6">
             {filtersActive ? (
-              <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5">
+              <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5 bg-white">
                 <span className="text-sm font-medium">Filters active</span>
                 <button
                   onClick={() => clearFilters?.()}
@@ -163,7 +165,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-auto mx-8 mb-10 border-2 border-zinc-900">
+          <div className="flex-1 overflow-auto mx-8 mb-10 border-2 border-zinc-900 bg-white">
             <TeammatesTable
               teammates={teammates}
               onUpdate={handleUpdate}

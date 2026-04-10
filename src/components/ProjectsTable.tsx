@@ -295,7 +295,7 @@ export default function ProjectsTable({
         const colors = STATUS_COLORS[status as keyof typeof STATUS_COLORS];
 
         return (
-          <div key={status} className="relative">
+          <div key={status} className="relative bg-white">
             {/* Group label — floating chip */}
             <div className="sticky top-[37px] z-10 pointer-events-none py-1.5">
               <span
