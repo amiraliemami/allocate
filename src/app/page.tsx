@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import ProjectsSidebar from "@/components/ProjectsSidebar";
 import TeammatesSidebar from "@/components/TeammatesSidebar";
+import WatermarkBackground from "@/components/WatermarkBackground";
 import AllocationView from "@/components/allocation/AllocationView";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
@@ -103,7 +104,10 @@ export default function Home() {
   }, [fetchAll]);
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden bg-white">
+    <div className="relative isolate flex h-screen flex-col overflow-hidden bg-white">
+      {/* Watermark background */}
+      <WatermarkBackground text="A L L O C A T E" className="-z-10" color="black" opacity={0.05} rotation={90} />
+
       {/* Top bar */}
       <header className="flex items-center justify-center gap-8 bg-white mt-14 mb-10">
         <svg className="flex-1 h-3" preserveAspectRatio="none" viewBox="0 0 100 10">
@@ -183,8 +187,8 @@ export default function Home() {
 
       {/* Ticker footer */}
       <footer className="overflow-hidden text-center">
-        <div className="inline whitespace-nowrap text-xs font-mono text-zinc-400">
-          {Array(60).fill("v1.0").join(" ")}
+        <div className="inline whitespace-nowrap text-xs font-mono font-bold text-zinc-300 bg-white py-1">
+          {Array(60).fill("v1.1").join(" ")}
         </div>
       </footer>
 

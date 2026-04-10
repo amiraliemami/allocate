@@ -2,6 +2,7 @@
 
 import { Dispatch, SetStateAction, useState } from "react";
 import ProjectsTable from "./ProjectsTable";
+import WatermarkBackground from "./WatermarkBackground";
 
 type Teammate = { id: string; name: string };
 
@@ -140,6 +141,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
         <div
           className={`fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-[1200px] flex-col border-r-3 border-zinc-900 bg-white shadow-2xl ${closing ? "slide-out-left" : "slide-in-left"}`}
         >
+          <WatermarkBackground text="P R O J E C T S" className="-z-10" color="purple" opacity={0.3} rotation={-20}/>
           {/* Handle — attached to right edge of panel */}
           <div className="absolute right-2 top-1/3 -translate-y-1/2 translate-x-full z-[51]">
             <button
@@ -157,7 +159,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
           {/* Header */}
           <div className="flex items-end justify-end gap-3 px-8 pt-8 pb-6">
             {filtersActive ? (
-              <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5">
+              <div className="flex items-center gap-2 rounded-lg border-2 px-3 py-1.5 bg-white">
                 <span className="text-sm font-medium">Filters active</span>
                 <button
                   onClick={() => clearFilters?.()}
@@ -177,7 +179,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-auto mx-8 mb-10 border-2 border-zinc-900">
+          <div className="flex-1 overflow-auto mx-8 mb-10 border-2 border-zinc-900 bg-white">
             <ProjectsTable
               projects={projects}
               teammates={teammates}

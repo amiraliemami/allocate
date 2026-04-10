@@ -232,7 +232,7 @@ export default function TeammatesTable({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       <div className="min-w-[700px]">
         {/* Table header */}
         <div
@@ -276,7 +276,7 @@ export default function TeammatesTable({
             ];
 
           return (
-            <div key={status} className="relative">
+            <div key={status} className="relative bg-white">
               <div className="sticky top-[37px] z-10 pointer-events-none py-1.5">
                 <span
                   className={`inline-block rounded-md border-2 ml-1 px-2.5 py-0.5 text-xs font-bold shadow-sm ${colors.chip}`}
