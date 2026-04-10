@@ -103,7 +103,38 @@ export default function Home() {
   }, [fetchAll]);
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden bg-white">
+    <div className="relative isolate flex h-screen flex-col overflow-hidden bg-white">
+      {/* Watermark background */}
+      <svg
+        className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            id="allocate-watermark"
+            x="0"
+            y="0"
+            width="120"
+            height="24"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(-45)"
+          >
+            <text
+              x="0"
+              y="16"
+              fontFamily="system-ui, sans-serif"
+              fontSize="16"
+              fontWeight="700"
+              fill="#1a1a1a"
+              fillOpacity="0.04"
+            >
+              A L L O C A T E
+            </text>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#allocate-watermark)" />
+      </svg>
+
       {/* Top bar */}
       <header className="flex items-center justify-center gap-8 bg-white mt-14 mb-10">
         <svg className="flex-1 h-3" preserveAspectRatio="none" viewBox="0 0 100 10">
