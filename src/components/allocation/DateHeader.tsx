@@ -331,10 +331,10 @@ export default function DateHeader({
         </div>
         <div className="flex">
           {monthGroups.map((month) => (
-            <div key={month.label}>
+            <div key={month.label} className="overflow-clip" style={{ width: month.weeks.length * CELL_WIDTH }}>
               <div
-                className="text-sm font-bold text-left px-2 py-1.5 border-l-2 border-zinc-300"
-                style={{ width: month.weeks.length * CELL_WIDTH }}
+                className="sticky text-sm font-bold text-left px-2 py-1.5 border-l-2 border-zinc-300 w-fit"
+                style={{ left: leftPanelWidth }}
               >
                 {month.month === 0 ? `${MONTH_NAMES[0]} ${month.year}` : MONTH_NAMES[month.month]}
               </div>
