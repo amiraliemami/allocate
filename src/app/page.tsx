@@ -214,7 +214,7 @@ export default function Home() {
         disabled={dataLoading || loadError}
       />
 
-      <Notepad />
+      {!dataLoading && !loadError && <Notepad />}
     </div>
   );
 }

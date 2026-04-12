@@ -62,7 +62,7 @@ export default function Notepad() {
   return (
     <div
       ref={ref}
-      className="fixed z-10"
+      className="fixed z-20"
       style={{
         right: 80,
         bottom: 0,
@@ -86,7 +86,7 @@ export default function Notepad() {
           style={{ height: HEADER }}
           onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         >
-          <span className="text-xs font-bold text-zinc-600 uppercase tracking-wider">Notepad</span>
+          <span className="text-xs font-bold text-zinc-600 uppercase tracking-wider">Public Notepad</span>
           <span className="text-xs text-zinc-400">{saving ? "saving..." : "saved"}</span>
         </div>
 
