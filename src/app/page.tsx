@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ProjectsSidebar from "@/components/ProjectsSidebar";
 import TeammatesSidebar from "@/components/TeammatesSidebar";
 import WatermarkBackground from "@/components/WatermarkBackground";
-import NotebookFab from "@/components/NotebookFab";
+import Notepad from "@/components/Notepad";
 import AllocationView from "@/components/allocation/AllocationView";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
@@ -214,7 +214,7 @@ export default function Home() {
         disabled={dataLoading || loadError}
       />
 
-      <NotebookFab />
+      <Notepad />
     </div>
   );
 }
