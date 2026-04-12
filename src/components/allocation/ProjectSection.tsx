@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import AllocationCell from "./AllocationCell";
+import TotalsCell from "./TotalsCell";
 import useDragToFill from "@/hooks/useDragToFill";
 import { STATUS_COLORS } from "@/lib/statusColors";
 import { Plus } from "lucide-react";
@@ -34,6 +35,9 @@ interface Props {
   teammateStatusFilter?: Set<string>;
   teammateIdFilter?: Set<string>;
   showProjectDetails?: boolean;
+  showTotals?: boolean;
+  totalsOnly?: boolean;
+  projectTotals?: Map<string, number>;
   addedPairs?: Set<string>;
   onCellEdit: (
     projectId: string,
@@ -57,6 +61,9 @@ export default function ProjectSection({
   teammateStatusFilter,
   teammateIdFilter,
   showProjectDetails,
+  showTotals,
+  totalsOnly,
+  projectTotals,
   addedPairs,
   onCellEdit,
   onAddTeammate,
@@ -147,7 +154,7 @@ export default function ProjectSection({
         </div>
 
         {/* Add teammate button — appears on hover, aligned with last row */}
-        {hovering && !adding && availableTeammates.length > 0 && (
+        {hovering && !adding && !totalsOnly && availableTeammates.length > 0 && (
           <button
             onClick={() => setAdding(true)}
             className="btn-chunky btn-chunky-muted absolute bottom-2 right-2 rounded"
@@ -160,7 +167,7 @@ export default function ProjectSection({
 
       {/* Teammate rows + allocation grid */}
       <div className="flex flex-col flex-1">
-        {projectTeammates.map((teammate) => {
+        {!totalsOnly && projectTeammates.map((teammate) => {
           const isUnsaved = addedPairs?.has(`${project.id}|${teammate.id}`) &&
             !weekStarts.some((ws) => allocationMap.has(`${project.id}|${teammate.id}|${ws}`));
 
@@ -241,7 +248,7 @@ export default function ProjectSection({
         })}
 
         {/* Add teammate row — appears when adding */}
-        {adding && (
+        {!totalsOnly && adding && (
           <div className="flex" style={{ height: ROW_HEIGHT }}>
             <div
               className="sticky z-10 shrink-0 flex items-center border-b border-zinc-200 border-r-2 border-r-zinc-900"
@@ -273,6 +280,30 @@ export default function ProjectSection({
                   className={`box-border border-b border-b-zinc-200 ${monthBoundaries.has(ws) ? "border-l-2 border-l-zinc-300" : "border-l border-l-zinc-200"
                     }`}
                   style={{ width: 56, minWidth: 56, height: ROW_HEIGHT }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TOTAL row */}
+        {showTotals && projectTotals && (
+          <div className="flex" style={{ height: ROW_HEIGHT }}>
+            <div
+              className={`sticky z-10 shrink-0 flex items-center justify-end px-2 text-xs font-bold text-zinc-500 uppercase tracking-wide border-r-2 border-r-zinc-900 ${totalsOnly ? "" : "border-b-2 border-b-zinc-200"}`}
+              style={{ left: PROJECT_INFO_WIDTH, width: TEAMMATE_NAME_WIDTH, minWidth: TEAMMATE_NAME_WIDTH, background: "white" }}
+              onMouseEnter={() => setHovering(true)}
+            >
+              {!totalsOnly && "Total"}
+            </div>
+            <div className="flex" onMouseEnter={() => setHovering(false)}>
+              {weekStarts.map((ws) => (
+                <TotalsCell
+                  key={ws}
+                  fraction={projectTotals.get(`${project.id}|${ws}`)}
+                  isMonthStart={monthBoundaries.has(ws)}
+                  noBorder={totalsOnly}
+                  variant="intensity"
                 />
               ))}
             </div>

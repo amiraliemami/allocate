@@ -304,14 +304,15 @@ export default function DateHeader({
             )}
           </Chip>
 
-          {/* Teammate view toggles */}
-          {activeView === "teammate" && onToggleShowTotals && (
+          {/* Totals toggle (both views) */}
+          {onToggleShowTotals && (
             <Chip active={!!showTotals} activeColor="bg-blue-100" activeTextColor="text-blue-800" onClick={onToggleShowTotals}>
               Show totals
               {showTotals && <ClearButton onClick={onToggleShowTotals} />}
             </Chip>
           )}
-          {activeView === "teammate" && onToggleTotalsOnly && (
+          {/* Totals only toggle */}
+          {onToggleTotalsOnly && (
             <Chip active={!!totalsOnly} activeColor="bg-blue-100" activeTextColor="text-blue-800" onClick={onToggleTotalsOnly}>
               Totals only
               {totalsOnly && <ClearButton onClick={onToggleTotalsOnly} />}
@@ -321,9 +322,9 @@ export default function DateHeader({
       </div>
 
       {/* Date columns */}
-      <div className="flex flex-col justify-end">
+      <div className="flex flex-col justify-between">
         <div
-          className="text-sm font-bold overflow-hidden whitespace-nowrap border-b border-zinc-200 px-2 pb-2"
+          className="text-sm font-bold overflow-hidden whitespace-nowrap px-2 pb-2 h-[25px]"
           style={{ width: totalDateWidth }}
         >
           {Array(Math.ceil(totalWeeks * 1.33)).fill("dates").join(" ")}
