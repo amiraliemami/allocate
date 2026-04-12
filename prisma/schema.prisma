@@ -130,3 +130,11 @@ model Allocation {
   @@index([weekStart])
   @@map("allocations")
 }
+
+model Notepad {
+  id        String   @id @default("singleton")
+  content   String   @default("")
+  updatedAt DateTime @updatedAt
+
+  @@map("notepad")
+}
