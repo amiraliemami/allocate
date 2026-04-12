@@ -114,7 +114,7 @@ export default function TeammateSection({
 
   return (
     <div
-      className={`${totalsOnly ? "mt-0" : "mt-4"} border-t-2 border-zinc-200 flex`}
+      className={`${totalsOnly ? "mt-0" : "mt-5"} border-t-2 border-zinc-200 flex`}
       onMouseLeave={() => setHovering(false)}
     >
       {/* Teammate info — sticky left, spans full height */}

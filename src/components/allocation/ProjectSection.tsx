@@ -121,7 +121,7 @@ export default function ProjectSection({
 
   return (
     <div
-      className="mt-4 border-t-2 border-zinc-200 flex"
+      className={`${totalsOnly ? "mt-0" : "mt-5"} border-t-2 border-zinc-200 flex`}
       onMouseLeave={() => setHovering(false)}
     >
       {/* Project info — sticky left, spans full height of this section */}
