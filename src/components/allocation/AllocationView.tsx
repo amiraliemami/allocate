@@ -60,7 +60,9 @@ export default function AllocationView({
   const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const [showTotals, setShowTotals] = useState(true);
+  const [showProjectTotals, setShowProjectTotals] = useState(false);
   const [totalsOnly, setTotalsOnly] = useState(false);
+  const [projectTotalsOnly, setProjectTotalsOnly] = useState(false);
   const [addedPairs, setAddedPairs] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -132,6 +134,17 @@ export default function AllocationView({
     return totals;
   }, [allocations]);
 
+  // Project totals: sum of fractions per project per week
+  const projectTotals = useMemo(() => {
+    const totals = new Map<string, number>();
+    for (const a of allocations) {
+      if (a.isHidden) continue;
+      const key = `${a.projectId}|${a.weekStart}`;
+      totals.set(key, (totals.get(key) ?? 0) + a.fraction);
+    }
+    return totals;
+  }, [allocations]);
+
   // Filter projects matching active filters (includes projects with no allocations)
   const activeProjects = useMemo(() => {
     return projects.filter((p) => {
@@ -183,6 +196,16 @@ export default function AllocationView({
               showProjectDetails={showProjectDetails}
               onToggleProjectDetails={() => setShowProjectDetails((v) => !v)}
               activeView={activeView}
+              showTotals={showProjectTotals}
+              onToggleShowTotals={() => setShowProjectTotals((v) => {
+                if (v) setProjectTotalsOnly(false);
+                return !v;
+              })}
+              totalsOnly={projectTotalsOnly}
+              onToggleTotalsOnly={() => setProjectTotalsOnly((v) => {
+                if (!v) setShowProjectTotals(true);
+                return !v;
+              })}
             />
             {activeProjects.map((project, idx) => (
               <ProjectSection
@@ -197,6 +220,9 @@ export default function AllocationView({
                 teammateStatusFilter={filters.teammateStatus}
                 teammateIdFilter={filters.teammateId}
                 showProjectDetails={showProjectDetails}
+                showTotals={showProjectTotals}
+                totalsOnly={projectTotalsOnly}
+                projectTotals={projectTotals}
                 onCellEdit={onCellEdit}
                 addedPairs={addedPairs}
                 onAddTeammate={(projectId, teammateId) => {
