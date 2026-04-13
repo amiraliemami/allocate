@@ -69,6 +69,7 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
     const remaining = (100 - baseTotal - draftVal * 100) / 100;
     const remainingText = `${remaining.toFixed(1)} remaining`;
     const isOver = remaining <= 0;
+    const onFire = remaining <= -0.3;
 
     return (
       <div
@@ -76,11 +77,18 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
         style={{ width: CELL_WIDTH, minWidth: CELL_WIDTH }}
         className={`relative flex items-center justify-center h-full box-border ${borderClass}`}
       >
-        <div
-          className="tooltip-bubble absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-0.5 text-xs font-bold whitespace-nowrap z-50"
-          style={{ "--bubble-color": isOver ? "#991b1b" : "#166534" } as React.CSSProperties}
-        >
-          {remainingText}
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 flex flex-col items-center">
+          {onFire && (
+            <div className="pointer-events-none flex justify-center z-40" style={{ width: 100, height: 15, marginBottom: -3 }}>
+              <div className="flame" />
+            </div>
+          )}
+          <div
+            className="tooltip-bubble px-2 py-0.5 text-xs font-bold whitespace-nowrap z-50 relative"
+            style={{ "--bubble-color": isOver ? "#991b1b" : "#166534" } as React.CSSProperties}
+          >
+            {remainingText}
+          </div>
         </div>
         <input
           className="w-full h-full text-center text-sm bg-white outline-none border-2 border-zinc-900 rounded px-0.5"

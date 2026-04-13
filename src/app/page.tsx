@@ -186,7 +186,7 @@ export default function Home() {
         )}
       </main>
 
-      {/* Ticker footer */}
+      {/* Footer */}
       <footer className="overflow-hidden text-center">
         <div className="inline whitespace-nowrap text-xs font-mono font-bold text-zinc-300 bg-white py-1">
           {Array(60).fill("v1.1").join(" ")}
