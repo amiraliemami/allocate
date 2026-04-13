@@ -5,6 +5,28 @@ import { memo, useState, useRef, useEffect } from "react";
 const CELL_WIDTH = 56;
 const CELL_ATTR = "data-alloc-col";
 
+function scrollCellIntoView(target: HTMLElement) {
+  const scrollContainer = target.closest("[data-alloc-scroll]") as HTMLElement | null;
+  if (!scrollContainer) return;
+  const containerRect = scrollContainer.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const leftPanelWidth = parseInt(scrollContainer.getAttribute("data-alloc-left-width") ?? "0");
+  const visibleLeft = containerRect.left + leftPanelWidth;
+
+  if (targetRect.left < visibleLeft) {
+    scrollContainer.scrollLeft -= (visibleLeft - targetRect.left + 4);
+  }
+  if (targetRect.right > containerRect.right) {
+    scrollContainer.scrollLeft += (targetRect.right - containerRect.right + 4);
+  }
+  if (targetRect.top < containerRect.top) {
+    scrollContainer.scrollTop -= (containerRect.top - targetRect.top + 4);
+  }
+  if (targetRect.bottom > containerRect.bottom) {
+    scrollContainer.scrollTop += (targetRect.bottom - containerRect.bottom + 4);
+  }
+}
+
 function findAdjacentCell(
   current: HTMLElement,
   direction: "left" | "right" | "up" | "down"
@@ -122,29 +144,11 @@ function AllocationCellInner({ fraction, colIndex, teammateTotal, isMonthStart, 
     if (editing) {
       target.dispatchEvent(new CustomEvent("alloc-enter-edit", { bubbles: false }));
     }
-    target.focus();
+    // Prevent browser auto-scroll (it doesn't know about sticky panels)
+    target.focus({ preventScroll: true });
     target.click();
-    // Scroll into view, accounting for sticky left panel
-    const scrollContainer = target.closest("[data-alloc-scroll]") as HTMLElement | null;
-    if (scrollContainer) {
-      const containerRect = scrollContainer.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const leftPanelWidth = parseInt(scrollContainer.getAttribute("data-alloc-left-width") ?? "0");
-      const visibleLeft = containerRect.left + leftPanelWidth;
-
-      if (targetRect.left < visibleLeft) {
-        scrollContainer.scrollLeft -= (visibleLeft - targetRect.left + 4);
-      }
-      if (targetRect.right > containerRect.right) {
-        scrollContainer.scrollLeft += (targetRect.right - containerRect.right + 4);
-      }
-      if (targetRect.top < containerRect.top) {
-        scrollContainer.scrollTop -= (containerRect.top - targetRect.top + 4);
-      }
-      if (targetRect.bottom > containerRect.bottom) {
-        scrollContainer.scrollTop += (targetRect.bottom - containerRect.bottom + 4);
-      }
-    }
+    // Scroll into view ourselves, accounting for sticky left panel
+    scrollCellIntoView(target);
   };
 
   // Listen for "enter editing" event from navigation
