@@ -3,9 +3,91 @@
 import { memo, useState, useRef, useEffect } from "react";
 
 const CELL_WIDTH = 56;
+const CELL_ATTR = "data-alloc-col";
+
+function scrollCellIntoView(target: HTMLElement) {
+  const scrollContainer = target.closest("[data-alloc-scroll]") as HTMLElement | null;
+  if (!scrollContainer) return;
+  const containerRect = scrollContainer.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const leftPanelWidth = parseInt(scrollContainer.getAttribute("data-alloc-left-width") ?? "0");
+  const visibleLeft = containerRect.left + leftPanelWidth;
+
+  if (targetRect.left < visibleLeft) {
+    scrollContainer.scrollLeft -= (visibleLeft - targetRect.left + 4);
+  }
+  if (targetRect.right > containerRect.right) {
+    scrollContainer.scrollLeft += (targetRect.right - containerRect.right + 4);
+  }
+  if (targetRect.top < containerRect.top) {
+    scrollContainer.scrollTop -= (containerRect.top - targetRect.top + 4);
+  }
+  if (targetRect.bottom > containerRect.bottom) {
+    scrollContainer.scrollTop += (targetRect.bottom - containerRect.bottom + 4);
+  }
+}
+
+function findAdjacentCell(
+  current: HTMLElement,
+  direction: "left" | "right" | "up" | "down"
+): HTMLElement | null {
+  const col = current.getAttribute(CELL_ATTR);
+  if (col == null) return null;
+  const colIdx = parseInt(col);
+
+  if (direction === "left" || direction === "right") {
+    const targetCol = direction === "left" ? colIdx - 1 : colIdx + 1;
+    // Same row — sibling with adjacent col index
+    const row = current.parentElement;
+    return row?.querySelector(`[${CELL_ATTR}="${targetCol}"]`) as HTMLElement | null;
+  }
+
+  // Up/down — find the same col in the adjacent row
+  const row = current.closest("[data-alloc-row]");
+  if (!row) return null;
+
+  let targetRow: Element | null = null;
+
+  if (direction === "up") {
+    // Walk backwards through previous siblings looking for a row
+    let sibling = row.previousElementSibling;
+    while (sibling) {
+      if (sibling.hasAttribute("data-alloc-row")) { targetRow = sibling; break; }
+      sibling = sibling.previousElementSibling;
+    }
+    // If not found in same section, try the previous section's last row
+    if (!targetRow) {
+      const section = row.closest("[data-alloc-section]");
+      let prevSection = section?.previousElementSibling;
+      while (prevSection) {
+        const rows = prevSection.querySelectorAll("[data-alloc-row]");
+        if (rows.length > 0) { targetRow = rows[rows.length - 1]; break; }
+        prevSection = prevSection.previousElementSibling;
+      }
+    }
+  } else {
+    let sibling = row.nextElementSibling;
+    while (sibling) {
+      if (sibling.hasAttribute("data-alloc-row")) { targetRow = sibling; break; }
+      sibling = sibling.nextElementSibling;
+    }
+    if (!targetRow) {
+      const section = row.closest("[data-alloc-section]");
+      let nextSection = section?.nextElementSibling;
+      while (nextSection) {
+        const firstRow = nextSection.querySelector("[data-alloc-row]");
+        if (firstRow) { targetRow = firstRow; break; }
+        nextSection = nextSection.nextElementSibling;
+      }
+    }
+  }
+
+  return targetRow?.querySelector(`[${CELL_ATTR}="${colIdx}"]`) as HTMLElement | null;
+}
 
 interface Props {
   fraction: number | undefined;
+  colIndex: number;
   teammateTotal?: number;
   isMonthStart?: boolean;
   unsaved?: boolean;
@@ -13,7 +95,7 @@ interface Props {
   onEdit: (value: number | null) => void;
 }
 
-function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, previewFraction, onEdit }: Props) {
+function AllocationCellInner({ fraction, colIndex, teammateTotal, isMonthStart, unsaved, previewFraction, onEdit }: Props) {
   const [mode, setMode] = useState<"idle" | "selected" | "editing">("idle");
   const [draft, setDraft] = useState("");
   const [flashRed, setFlashRed] = useState(false);
@@ -50,6 +132,38 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
     if (intVal !== fraction) onEdit(intVal);
   };
 
+  // Navigate to adjacent cell, optionally in editing mode
+  const navigate = (direction: "left" | "right" | "up" | "down", editing: boolean) => {
+    if (!cellRef.current) return;
+    // Commit current edit before leaving
+    if (mode === "editing") commit();
+    const target = findAdjacentCell(cellRef.current, direction);
+    if (!target) return;
+    // Deselect current cell before activating target
+    setMode("idle");
+    if (editing) {
+      target.dispatchEvent(new CustomEvent("alloc-enter-edit", { bubbles: false }));
+    }
+    // Prevent browser auto-scroll (it doesn't know about sticky panels)
+    target.focus({ preventScroll: true });
+    target.click();
+    // Scroll into view ourselves, accounting for sticky left panel
+    scrollCellIntoView(target);
+  };
+
+  // Listen for "enter editing" event from navigation
+  useEffect(() => {
+    const el = cellRef.current;
+    if (!el) return;
+    const handler = () => {
+      setDraft(displayValue);
+      // Small delay to let click/focus set "selected" first
+      requestAnimationFrame(() => setMode("editing"));
+    };
+    el.addEventListener("alloc-enter-edit", handler);
+    return () => el.removeEventListener("alloc-enter-edit", handler);
+  }, [displayValue]);
+
   // Deselect when clicking outside
   useEffect(() => {
     if (mode === "idle") return;
@@ -63,6 +177,18 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mode]);
 
+  const handleArrowKeys = (e: React.KeyboardEvent, isEditing: boolean) => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      const dir = e.key.replace("Arrow", "").toLowerCase() as "left" | "right" | "up" | "down";
+      navigate(dir, isEditing);
+    }
+    if (e.key === "Tab") {
+      e.preventDefault();
+      navigate(e.shiftKey ? "left" : "right", isEditing);
+    }
+  };
+
   if (mode === "editing") {
     const draftVal = parseFloat(draft) || 0;
     const baseTotal = (teammateTotal ?? 0) - (fraction ?? 0);
@@ -74,6 +200,7 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
     return (
       <div
         ref={cellRef}
+        data-alloc-col={colIndex}
         style={{ width: CELL_WIDTH, minWidth: CELL_WIDTH }}
         className={`relative flex items-center justify-center h-full box-border ${borderClass}`}
       >
@@ -96,8 +223,9 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
           onKeyDown={(e) => {
-            if (e.key === "Enter") commit();
-            if (e.key === "Escape") setMode("idle");
+            if (e.key === "Enter") { commit(); return; }
+            if (e.key === "Escape") { setMode("idle"); return; }
+            handleArrowKeys(e, true);
           }}
           autoFocus
         />
@@ -109,6 +237,7 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
     <div
       ref={cellRef}
       tabIndex={0}
+      data-alloc-col={colIndex}
       style={{
         width: CELL_WIDTH,
         minWidth: CELL_WIDTH,
@@ -131,12 +260,17 @@ function AllocationCellInner({ fraction, teammateTotal, isMonthStart, unsaved, p
       }}
       onKeyDown={(e) => {
         if (mode !== "selected") return;
+        handleArrowKeys(e, false);
         if (e.key === "Delete" || e.key === "Backspace") {
           e.preventDefault();
           if (fraction != null) onEdit(null);
           setMode("idle");
         } else if (e.key === "Escape") {
           setMode("idle");
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          setDraft(displayValue);
+          setMode("editing");
         } else if (e.key.length === 1 && !e.metaKey && !e.ctrlKey) {
           // Start typing — enter edit mode with the typed character as initial draft
           e.preventDefault();

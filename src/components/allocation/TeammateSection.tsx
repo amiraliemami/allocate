@@ -114,6 +114,7 @@ export default function TeammateSection({
 
   return (
     <div
+      data-alloc-section
       className={`${totalsOnly ? "mt-0" : "mt-5"} border-t-2 border-zinc-200 flex`}
       onMouseLeave={() => setHovering(false)}
     >
@@ -153,7 +154,7 @@ export default function TeammateSection({
             !weekStarts.some((ws) => allocationMap.has(`${project.id}|${teammate.id}|${ws}`));
 
           return (
-            <div key={project.id} className="flex" style={{ height: ROW_HEIGHT }}>
+            <div key={project.id} data-alloc-row className="flex" style={{ height: ROW_HEIGHT }}>
               <div
                 className={`group/name sticky z-10 shrink-0 flex items-center px-2 text-sm font-medium truncate text-zinc-700 border-r-2 border-r-zinc-900 ${isUnsaved ? "italic" : ""}`}
                 style={{
@@ -211,6 +212,7 @@ export default function TeammateSection({
                   return (
                     <AllocationCell
                       key={ws}
+                      colIndex={idx}
                       fraction={alloc?.fraction}
                       teammateTotal={teammateTotals.get(`${teammate.id}|${ws}`)}
                       isMonthStart={monthBoundaries.has(ws)}
