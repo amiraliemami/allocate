@@ -57,13 +57,12 @@ export default function AllocationView({
   activeView,
   onCellEdit,
 }: Props) {
-  const weekStarts = useMemo(
-    () =>
-      rawWeekStarts.length > 0
-        ? rawWeekStarts
-        : generateWeekStarts(getYearStartMonday(), 52),
-    [rawWeekStarts]
-  );
+  const weekStarts = useMemo(() => {
+    const yearWeeks = generateWeekStarts(getYearStartMonday(), 52);
+    const merged = new Set<string>(yearWeeks);
+    for (const ws of rawWeekStarts) merged.add(ws);
+    return Array.from(merged).sort();
+  }, [rawWeekStarts]);
   const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const [showTotals, setShowTotals] = useState(true);
