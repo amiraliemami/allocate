@@ -4,7 +4,7 @@ import { useMemo, useRef, useEffect, useState, useCallback } from "react";
 import type { Project } from "@/components/ProjectsSidebar";
 import type { Teammate } from "@/components/TeammatesSidebar";
 import type { Allocation } from "./ProjectSection";
-import { groupWeeksByMonth } from "@/lib/dateUtils";
+import { groupWeeksByMonth, generateWeekStarts, getYearStartMonday } from "@/lib/dateUtils";
 import { getProjectBg } from "@/lib/projectColors";
 import DateHeader from "./DateHeader";
 import ProjectSection from "./ProjectSection";
@@ -53,10 +53,17 @@ export default function AllocationView({
   projects,
   teammates,
   allocations,
-  weekStarts,
+  weekStarts: rawWeekStarts,
   activeView,
   onCellEdit,
 }: Props) {
+  const weekStarts = useMemo(
+    () =>
+      rawWeekStarts.length > 0
+        ? rawWeekStarts
+        : generateWeekStarts(getYearStartMonday(), 52),
+    [rawWeekStarts]
+  );
   const [filters, setFilters] = useState<AllocationFilters>({ ...DEFAULT_FILTERS });
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const [showTotals, setShowTotals] = useState(true);
