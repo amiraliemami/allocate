@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import ProjectsTable from "./ProjectsTable";
 import WatermarkBackground from "./WatermarkBackground";
 
@@ -27,33 +27,44 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onOpen: () => void;
+  onFlushed?: () => void;
   projects: Project[];
   setProjects: Dispatch<SetStateAction<Project[]>>;
   teammates: Teammate[];
   disabled?: boolean;
 }
 
-export default function ProjectsSidebar({ open, onClose, onOpen, projects, setProjects, teammates, disabled }: Props) {
+export default function ProjectsSidebar({ open, onClose, onOpen, onFlushed, projects, setProjects, teammates, disabled }: Props) {
   const [closing, setClosing] = useState(false);
   const [filtersActive, setFiltersActive] = useState(false);
   const [clearFilters, setClearFilters] = useState<(() => void) | null>(null);
+  const pendingRef = useRef<Set<Promise<unknown>>>(new Set());
+
+  const track = <T,>(p: Promise<T>): Promise<T> => {
+    pendingRef.current.add(p);
+    p.finally(() => pendingRef.current.delete(p));
+    return p;
+  };
 
   const handleClose = () => {
     setClosing(true);
     setTimeout(() => {
       setClosing(false);
       onClose();
+      Promise.allSettled(Array.from(pendingRef.current)).then(() => {
+        onFlushed?.();
+      });
     }, 250);
   };
 
   const handleUpdate = async (id: string, field: string, value: unknown) => {
     // If this is a draft row getting its name, create it in the DB first
     if (id.startsWith("temp-") && field === "name" && value) {
-      const res = await fetch("/api/projects", {
+      const res = await track(fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: value }),
-      });
+      }));
       if (res.ok) {
         const created = await res.json();
         setProjects((prev) => prev.map((p) => (p.id === id ? created : p)));
@@ -68,11 +79,11 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
     setProjects((prev) =>
       prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
     );
-    const res = await fetch(`/api/projects/${id}`, {
+    const res = await track(fetch(`/api/projects/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [field]: value }),
-    });
+    }));
     if (res.ok) {
       const updated = await res.json();
       setProjects((prev) => prev.map((p) => (p.id === id ? updated : p)));
@@ -104,7 +115,7 @@ export default function ProjectsSidebar({ open, onClose, onOpen, projects, setPr
     setProjects((prev) => prev.filter((p) => p.id !== id));
     // Only call API if it's a real row
     if (!id.startsWith("temp-")) {
-      await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      await track(fetch(`/api/projects/${id}`, { method: "DELETE" }));
     }
   };
 
