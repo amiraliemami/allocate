@@ -75,9 +75,11 @@ export default function Home() {
     router.push("/login");
   };
 
-  const fetchAll = useCallback(async () => {
-    setDataLoading(true);
-    setLoadError(false);
+  const fetchAll = useCallback(async (silent = false) => {
+    if (!silent) {
+      setDataLoading(true);
+      setLoadError(false);
+    }
     try {
       const [projRes, teamRes, allocRes] = await Promise.all([
         fetch("/api/projects"),
@@ -85,8 +87,8 @@ export default function Home() {
         fetch("/api/allocations"),
       ]);
       if (!projRes.ok || !teamRes.ok || !allocRes.ok) {
-        setLoadError(true);
-        setDataLoading(false);
+        if (!silent) setLoadError(true);
+        if (!silent) setDataLoading(false);
         return;
       }
       setProjects(await projRes.json());
@@ -95,9 +97,9 @@ export default function Home() {
       setAllocations(data.allocations);
       setWeekStarts(data.weekStarts);
     } catch {
-      setLoadError(true);
+      if (!silent) setLoadError(true);
     }
-    setDataLoading(false);
+    if (!silent) setDataLoading(false);
   }, []);
 
   useEffect(() => {
@@ -197,6 +199,7 @@ export default function Home() {
       <ProjectsSidebar
         open={projectsOpen}
         onClose={() => setProjectsOpen(false)}
+        onFlushed={() => fetchAll(true)}
         onOpen={() => { setTeammatesOpen(false); setProjectsOpen(true); }}
         projects={projects}
         setProjects={setProjects}
@@ -208,6 +211,7 @@ export default function Home() {
       <TeammatesSidebar
         open={teammatesOpen}
         onClose={() => setTeammatesOpen(false)}
+        onFlushed={() => fetchAll(true)}
         onOpen={() => { setProjectsOpen(false); setTeammatesOpen(true); }}
         teammates={teammates}
         setTeammates={setTeammates}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import TeammatesTable from "./TeammatesTable";
 import WatermarkBackground from "./WatermarkBackground";
 
@@ -18,31 +18,42 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onOpen: () => void;
+  onFlushed?: () => void;
   teammates: Teammate[];
   setTeammates: Dispatch<SetStateAction<Teammate[]>>;
   disabled?: boolean;
 }
 
-export default function TeammatesSidebar({ open, onClose, onOpen, teammates, setTeammates, disabled }: Props) {
+export default function TeammatesSidebar({ open, onClose, onOpen, onFlushed, teammates, setTeammates, disabled }: Props) {
   const [closing, setClosing] = useState(false);
   const [filtersActive, setFiltersActive] = useState(false);
   const [clearFilters, setClearFilters] = useState<(() => void) | null>(null);
+  const pendingRef = useRef<Set<Promise<unknown>>>(new Set());
+
+  const track = <T,>(p: Promise<T>): Promise<T> => {
+    pendingRef.current.add(p);
+    p.finally(() => pendingRef.current.delete(p));
+    return p;
+  };
 
   const handleClose = () => {
     setClosing(true);
     setTimeout(() => {
       setClosing(false);
       onClose();
+      Promise.allSettled(Array.from(pendingRef.current)).then(() => {
+        onFlushed?.();
+      });
     }, 250);
   };
 
   const handleUpdate = async (id: string, field: string, value: unknown) => {
     if (id.startsWith("temp-") && field === "name" && value) {
-      const res = await fetch("/api/teammates", {
+      const res = await track(fetch("/api/teammates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: value }),
-      });
+      }));
       if (res.ok) {
         const created = await res.json();
         setTeammates((prev) => prev.map((t) => (t.id === id ? created : t)));
@@ -55,11 +66,11 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
     setTeammates((prev) =>
       prev.map((t) => (t.id === id ? { ...t, [field]: value } : t))
     );
-    const res = await fetch(`/api/teammates/${id}`, {
+    const res = await track(fetch(`/api/teammates/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [field]: value }),
-    });
+    }));
     if (res.ok) {
       const updated = await res.json();
       setTeammates((prev) => prev.map((t) => (t.id === id ? updated : t)));
@@ -82,7 +93,7 @@ export default function TeammatesSidebar({ open, onClose, onOpen, teammates, set
 
   const handleDelete = async (id: string) => {
     if (!id.startsWith("temp-")) {
-      const res = await fetch(`/api/teammates/${id}`, { method: "DELETE" });
+      const res = await track(fetch(`/api/teammates/${id}`, { method: "DELETE" }));
       if (!res.ok) {
         const data = await res.json();
         alert(data.error ?? "Failed to delete teammate");
