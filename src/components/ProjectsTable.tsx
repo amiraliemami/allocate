@@ -354,7 +354,7 @@ function ProjectRow({
 
   return (
     <div
-      className={`grid grid-cols-[220px_120px_100px_80px_100px_100px_70px_70px_100px_110px_110px_150px_40px] gap-px transition-colors ${
+      className={`grid grid-cols-[220px_120px_100px_80px_100px_100px_70px_70px_100px_110px_110px_150px_40px] transition-colors ${
         confirming
           ? "bg-rose-50"
           : isDraft
