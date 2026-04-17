@@ -49,6 +49,31 @@ export function isCurrentWeek(weekStart: string): boolean {
   return weekStart === getCurrentMonday();
 }
 
+export function generateWeekStarts(startMonday: string, count: number): string[] {
+  const result: string[] = [];
+  const [y, m, d] = startMonday.split("-").map(Number);
+  const cursor = new Date(y, m - 1, d);
+  for (let i = 0; i < count; i++) {
+    const yy = cursor.getFullYear();
+    const mm = String(cursor.getMonth() + 1).padStart(2, "0");
+    const dd = String(cursor.getDate()).padStart(2, "0");
+    result.push(`${yy}-${mm}-${dd}`);
+    cursor.setDate(cursor.getDate() + 7);
+  }
+  return result;
+}
+
+export function getYearStartMonday(year: number = new Date().getFullYear()): string {
+  const jan1 = new Date(year, 0, 1);
+  const day = jan1.getDay();
+  const diff = 1 - day + (day === 0 ? -6 : 0);
+  const monday = new Date(year, 0, 1 + diff);
+  const y = monday.getFullYear();
+  const m = String(monday.getMonth() + 1).padStart(2, "0");
+  const d = String(monday.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export function formatWeekLabel(weekStart: string): string {
   const date = new Date(weekStart + "T00:00:00");
   return String(date.getDate());
